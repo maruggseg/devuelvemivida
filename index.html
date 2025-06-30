@@ -38,6 +38,7 @@
       height: 100%;
       background-color: #000;
       width: 0%;
+      transition: width 0.5s;
     }
     #frase {
       font-style: italic;
@@ -76,171 +77,180 @@
   <button onclick="redirigir()">Llévame a algo útil</button>
 
   <script>
-    const frases = [
-      "Haz que cada segundo cuente.",
-      "No eres eterno. Nadie lo es.",
-      "La muerte no avisa. La vida sí.",
-      "Tu tiempo es tu recurso más valioso.",
-      "Estás viviendo el único hoy que tendrás.",
-      "Cada segundo que pasa, no vuelve.",
-      "La vida no es una repetición.",
-      "No hagas scroll, haz historia.",
-      "Mañana no es garantía.",
-      "La procrastinación te roba silenciosamente.",
-      "Despierta antes de que sea tarde.",
-      "No desperdicies lo que no puedes recuperar.",
-      "No mueras con tu potencial intacto.",
-      "Haz algo que tu yo futuro agradezca.",
-      "¿Esto te acerca a la vida que sueñas?",
-      "No tienes tiempo infinito. Vívelo.",
-      "No seas espectador, sé protagonista.",
-      "El tiempo pasa. ¿Y tú qué haces?",
-      "Desperdiciar tiempo es suicidio lento.",
-      "Nadie te devuelve tu juventud.",
-      "No existe botón de reinicio.",
-      "Estás respirando: haz que valga.",
-      "La vida es un préstamo, no un regalo.",
-      "No pierdas hoy pensando en mañana.",
-      "Muévete. Vive. Haz.",
-      "Cada minuto que matas, te mata.",
-      "El tiempo que ignoras, decide tu vida.",
-      "Tus hábitos matan o salvan tu tiempo.",
-      "Nada cambia si tú no cambias.",
-      "Tu scroll no dejará legado.",
-      "Deja de consumir y empieza a crear.",
-      "La vida te está esperando. ¿Vas?",
-      "Aprovecha antes de arrepentirte.",
-      "No tienes vidas infinitas.",
-      "Ser joven no te hace inmortal.",
-      "El tiempo no avisa cuando se acaba.",
-      "El reloj no se detiene por nadie.",
-      "Tu vida se mide en momentos, no en likes.",
-      "Pregúntate: ¿esto es vida?",
-      "Haz más, mira menos.",
-      "No esperes un golpe para reaccionar.",
-      "Lo que haces hoy define tu mañana.",
-      "Hoy puede ser tu última oportunidad.",
-      "¿Quieres vivir o solo existir?",
-      "Deja huella, no historial de navegación.",
-      "No trabajes por likes, trabaja por legado.",
-      "¿Y si mañana no te despiertas?",
-      "Lo que hagas hoy, construye tu historia.",
-      "Vivir no es sobrevivir.",
-      "Tus excusas no te dan tiempo extra.",
-      "No te distraigas de lo importante.",
-      "No vivas para entretenerte. Vive para crecer.",
-      "Estás aquí por algo. Descúbrelo.",
-      "Tu propósito no está en TikTok.",
-      "No te autoabandones.",
-      "Todo empieza dejando el teléfono.",
-      "Tus sueños mueren en el sofá.",
-      "Lo fácil te entretiene. Lo difícil te transforma.",
-      "¿Lo que haces ahora te hace libre?",
-      "Aprovecha tu energía mientras la tengas.",
-      "Estás más cerca de la muerte que ayer.",
-      "No te sientas cómodo en la mediocridad.",
-      "Tus hábitos decidirán cómo te recordarán.",
-      "No hay más tiempo. Solo este momento.",
-      "No desperdicies el milagro de estar vivo.",
-      "La vida no es Netflix. No hay segunda temporada.",
-      "El tiempo perdido no se recupera. Punto.",
-      "La disciplina es la forma más pura de amor propio.",
-      "¿Tu yo de 80 años estaría orgulloso?",
-      "Elimina lo que no suma.",
-      "Vivir con intención cambia todo.",
-      "Haz menos, pero hazlo bien.",
-      "Haz algo que no se borre con el tiempo.",
-      "El éxito empieza cerrando Instagram.",
-      "Lo que haces a diario, te define.",
-      "Despertar no es lo mismo que vivir.",
-      "No estás atrapado. Estás distraído.",
-      "¿Qué te está quitando la vida lentamente?",
-      "Tu futuro se construye en silencio.",
-      "Lo urgente no siempre es importante.",
-      "Empieza con lo que tienes. Hoy.",
-      "Hazlo aunque nadie te aplauda.",
-      "El tiempo malgastado no se factura.",
-      "¿Estás viviendo o matando el tiempo?",
-      "Alguien menos preparado ya empezó.",
-      "Haz lo que importa, no lo que entretiene.",
-      "Piensa menos. Actúa más.",
-      "No busques likes. Busca sentido.",
-      "Tu mejor versión no se construye mirando reels.",
-      "Lo que haces cuando nadie mira es tu verdad.",
-      "Cada decisión es un voto por tu futuro.",
-      "El precio del éxito es tu atención.",
-      "Tus metas valen más que tu entretenimiento.",
-      "El presente no se repite. Aprovéchalo.",
-      "El miedo te paraliza. La acción te libera.",
-      "No eres víctima del tiempo, eres su dueño.",
-      "Los años pasan igual, estés listo o no.",
-      "¿Cuándo fue la última vez que te elegiste a ti?",
-      "Apaga todo. Escúchate.",
-      "Haz de tu vida algo digno de recordar.",
-      "Tienes menos tiempo del que crees.",
-      "No vivas distraído. Vive despierto.",
-      "Sé radical con tu tiempo.",
-      "Deja de soñar y empieza a construir.",
-      "La vida comienza cuando dejas de escapar de ella."
-    ];
+    document.addEventListener('DOMContentLoaded', function() {
+      const MILISEGUNDOS_EN_UN_SEGUNDO = 1000;
+      const MILISEGUNDOS_EN_UN_MINUTO = 60 * MILISEGUNDOS_EN_UN_SEGUNDO;
+      const MILISEGUNDOS_EN_UN_HORA = 60 * MILISEGUNDOS_EN_UN_MINUTO;
+      const MILISEGUNDOS_EN_UN_DIA = 24 * MILISEGUNDOS_EN_UN_HORA;
+      const ESPERANZA_VIDA_ANIOS = 80;
 
-    const linksUtiles = [
-      "https://www.freecodecamp.org/",
-      "https://www.coursera.org/",
-      "https://www.duolingo.com/",
-      "https://www.notion.so/",
-      "https://youtu.be/jT0V5HTkEvE"
-    ];
+      const frases = [
+        "Haz que cada segundo cuente.",
+        "No eres eterno. Nadie lo es.",
+        "La muerte no avisa. La vida sí.",
+        "Tu tiempo es tu recurso más valioso.",
+        "Estás viviendo el único hoy que tendrás.",
+        "Cada segundo que pasa, no vuelve.",
+        "La vida no es una repetición.",
+        "No hagas scroll, haz historia.",
+        "Mañana no es garantía.",
+        "La procrastinación te roba silenciosamente.",
+        "Despierta antes de que sea tarde.",
+        "No desperdicies lo que no puedes recuperar.",
+        "No mueras con tu potencial intacto.",
+        "Haz algo que tu yo futuro agradezca.",
+        "¿Esto te acerca a la vida que sueñas?",
+        "No tienes tiempo infinito. Vívelo.",
+        "No seas espectador, sé protagonista.",
+        "El tiempo pasa. ¿Y tú qué haces?",
+        "Desperdiciar tiempo es suicidio lento.",
+        "Nadie te devuelve tu juventud.",
+        "No existe botón de reinicio.",
+        "Estás respirando: haz que valga.",
+        "La vida es un préstamo, no un regalo.",
+        "No pierdas hoy pensando en mañana.",
+        "Muévete. Vive. Haz.",
+        "Cada minuto que matas, te mata.",
+        "El tiempo que ignoras, decide tu vida.",
+        "Tus hábitos matan o salvan tu tiempo.",
+        "Nada cambia si tú no cambias.",
+        "Tu scroll no dejará legado.",
+        "Deja de consumir y empieza a crear.",
+        "La vida te está esperando. ¿Vas?",
+        "Aprovecha antes de arrepentirte.",
+        "No tienes vidas infinitas.",
+        "Ser joven no te hace inmortal.",
+        "El tiempo no avisa cuando se acaba.",
+        "El reloj no se detiene por nadie.",
+        "Tu vida se mide en momentos, no en likes.",
+        "Pregúntate: ¿esto es vida?",
+        "Haz más, mira menos.",
+        "No esperes un golpe para reaccionar.",
+        "Lo que haces hoy define tu mañana.",
+        "Hoy puede ser tu última oportunidad.",
+        "¿Quieres vivir o solo existir?",
+        "Deja huella, no historial de navegación.",
+        "No trabajes por likes, trabaja por legado.",
+        "¿Y si mañana no te despiertas?",
+        "Lo que hagas hoy, construye tu historia.",
+        "Vivir no es sobrevivir.",
+        "Tus excusas no te dan tiempo extra.",
+        "No te distraigas de lo importante.",
+        "No vivas para entretenerte. Vive para crecer.",
+        "Estás aquí por algo. Descúbrelo.",
+        "Tu propósito no está en TikTok.",
+        "No te autoabandones.",
+        "Todo empieza dejando el teléfono.",
+        "Tus sueños mueren en el sofá.",
+        "Lo fácil te entretiene. Lo difícil te transforma.",
+        "¿Lo que haces ahora te hace libre?",
+        "Aprovecha tu energía mientras la tengas.",
+        "Estás más cerca de la muerte que ayer.",
+        "No te sientas cómodo en la mediocridad.",
+        "Tus hábitos decidirán cómo te recordarán.",
+        "No hay más tiempo. Solo este momento.",
+        "No desperdicies el milagro de estar vivo.",
+        "La vida no es Netflix. No hay segunda temporada.",
+        "El tiempo perdido no se recupera. Punto.",
+        "La disciplina es la forma más pura de amor propio.",
+        "¿Tu yo de 80 años estaría orgulloso?",
+        "Elimina lo que no suma.",
+        "Vivir con intención cambia todo.",
+        "Haz menos, pero hazlo bien.",
+        "Haz algo que no se borre con el tiempo.",
+        "El éxito empieza cerrando Instagram.",
+        "Lo que haces a diario, te define.",
+        "Despertar no es lo mismo que vivir.",
+        "No estás atrapado. Estás distraído.",
+        "¿Qué te está quitando la vida lentamente?",
+        "Tu futuro se construye en silencio.",
+        "Lo urgente no siempre es importante.",
+        "Empieza con lo que tienes. Hoy.",
+        "Hazlo aunque nadie te aplauda.",
+        "El tiempo malgastado no se factura.",
+        "¿Estás viviendo o matando el tiempo?",
+        "Alguien menos preparado ya empezó.",
+        "Haz lo que importa, no lo que entretiene.",
+        "Piensa menos. Actúa más.",
+        "No busques likes. Busca sentido.",
+        "Tu mejor versión no se construye mirando reels.",
+        "Lo que haces cuando nadie mira es tu verdad.",
+        "Cada decisión es un voto por tu futuro.",
+        "El precio del éxito es tu atención.",
+        "Tus metas valen más que tu entretenimiento.",
+        "El presente no se repite. Aprovéchalo.",
+        "El miedo te paraliza. La acción te libera.",
+        "No eres víctima del tiempo, eres su dueño.",
+        "Los años pasan igual, estés listo o no.",
+        "¿Cuándo fue la última vez que te elegiste a ti?",
+        "Apaga todo. Escúchate.",
+        "Haz de tu vida algo digno de recordar.",
+        "Tienes menos tiempo del que crees.",
+        "No vivas distraído. Vive despierto.",
+        "Sé radical con tu tiempo.",
+        "Deja de soñar y empieza a construir.",
+        "La vida comienza cuando dejas de escapar de ella."
+      ];
 
-    function nuevaFrase() {
-      const frase = frases[Math.floor(Math.random() * frases.length)];
-      document.getElementById("frase").textContent = frase;
-    }
+      const linksUtiles = [
+        "https://www.freecodecamp.org/",
+        "https://www.coursera.org/",
+        "https://www.duolingo.com/",
+        "https://www.notion.so/",
+        "https://youtu.be/jT0V5HTkEvE"
+      ];
 
-    function redirigir() {
-      const url = linksUtiles[Math.floor(Math.random() * linksUtiles.length)];
-      window.open(url, '_blank');
-    }
-
-    // Código para actualizar el contador en tiempo real
-    const MILISEGUNDOS_EN_UN_SEGUNDO = 1000;
-    const MILISEGUNDOS_EN_UN_MINUTO = 60 * MILISEGUNDOS_EN_UN_SEGUNDO;
-    const MILISEGUNDOS_EN_UN_HORA = 60 * MILISEGUNDOS_EN_UN_MINUTO;
-    const MILISEGUNDOS_EN_UN_DIA = 24 * MILISEGUNDOS_EN_UN_HORA;
-    const ESPERANZA_VIDA_ANIOS = 80;
-
-    let intervaloID;
-
-    document.getElementById("fechaNacimiento").addEventListener("change", () => {
-      if (intervaloID) clearInterval(intervaloID);
-      const nacimiento = new Date(document.getElementById("fechaNacimiento").value);
-
-      function actualizar() {
-        const ahora = new Date();
-        const diffMs = ahora - nacimiento;
-        if(diffMs < 0) {
-          document.getElementById("tiempo").textContent = "Selecciona una fecha válida.";
-          document.getElementById("porcentaje").textContent = "";
-          document.getElementById("relleno").style.width = "0%";
-          return;
-        }
-        const dias = Math.floor(diffMs / MILISEGUNDOS_EN_UN_DIA);
-        const horas = Math.floor((diffMs % MILISEGUNDOS_EN_UN_DIA) / MILISEGUNDOS_EN_UN_HORA);
-        const minutos = Math.floor((diffMs % MILISEGUNDOS_EN_UN_HORA) / MILISEGUNDOS_EN_UN_MINUTO);
-        const segundos = Math.floor((diffMs % MILISEGUNDOS_EN_UN_MINUTO) / MILISEGUNDOS_EN_UN_SEGUNDO);
-
-        const edadAnios = diffMs / (1000 * 60 * 60 * 24 * 365.25);
-        const porcentaje = Math.min((edadAnios / ESPERANZA_VIDA_ANIOS) * 100, 100);
-
-        document.getElementById("tiempo").textContent =
-          `Has vivido ${dias} días, ${horas} horas, ${minutos} minutos y ${segundos} segundos.`;
-        document.getElementById("porcentaje").textContent =
-          `Has usado aproximadamente el ${porcentaje.toFixed(2)}% de una vida promedio de 80 años.`;
-        document.getElementById("relleno").style.width = porcentaje + "%";
+      function nuevaFrase() {
+        const frase = frases[Math.floor(Math.random() * frases.length)];
+        document.getElementById("frase").textContent = frase;
       }
 
-      actualizar();
-      intervaloID = setInterval(actualizar, 1000);
+      function redirigir() {
+        const url = linksUtiles[Math.floor(Math.random() * linksUtiles.length)];
+        window.open(url, '_blank');
+      }
+
+      let intervaloID;
+      const fechaInput = document.getElementById("fechaNacimiento");
+
+      fechaInput.addEventListener("change", iniciarContador);
+      fechaInput.addEventListener("input", iniciarContador);
+
+      function iniciarContador() {
+        if (intervaloID) clearInterval(intervaloID);
+        const nacimiento = new Date(fechaInput.value);
+
+        function actualizar() {
+          const ahora = new Date();
+          const diffMs = ahora - nacimiento;
+          if (isNaN(nacimiento) || diffMs < 0) {
+            document.getElementById("tiempo").textContent = "Selecciona una fecha válida.";
+            document.getElementById("porcentaje").textContent = "";
+            document.getElementById("relleno").style.width = "0%";
+            return;
+          }
+          const dias = Math.floor(diffMs / MILISEGUNDOS_EN_DIA);
+          const horas = Math.floor((diffMs % MILISEGUNDOS_EN_DIA) / MILISEGUNDOS_EN_HORA);
+          const minutos = Math.floor((diffMs % MILISEGUNDOS_EN_HORA) / MILISEGUNDOS_EN_MINUTO);
+          const segundos = Math.floor((diffMs % MILISEGUNDOS_EN_MINUTO) / MILISEGUNDOS_EN_UN_SEGUNDO);
+
+          const edadAnios = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+          const porcentaje = Math.min((edadAnios / ESPERANZA_VIDA_ANIOS) * 100, 100);
+
+          document.getElementById("tiempo").textContent =
+            `Has vivido ${dias} días, ${horas} horas, ${minutos} minutos y ${segundos} segundos.`;
+          document.getElementById("porcentaje").textContent =
+            `Has usado aproximadamente el ${porcentaje.toFixed(2)}% de una vida promedio de 80 años.`;
+          document.getElementById("relleno").style.width = porcentaje + "%";
+        }
+
+        actualizar();
+        intervaloID = setInterval(actualizar, 1000);
+      }
+
+      // Para que los botones sigan funcionando:
+      window.nuevaFrase = nuevaFrase;
+      window.redirigir = redirigir;
     });
   </script>
 </body>
