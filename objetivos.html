@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objetivos Diarios</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff;
+      color: #222;
+      text-align: center;
+      padding: 2rem;
+    }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #000;
+      width: 250px;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      margin: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #000;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) {
+      background-color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Objetivos Diarios</h1>
+  <input type="text" id="nuevoObjetivo" placeholder="Ej: Ir al gym">
+  <button onclick="agregarObjetivo()">Agregar objetivo</button>
+  <ul id="listaObjetivos"></ul>
+  <button onclick="window.location.href='index.html'">Volver a Inicio</button>
+
+  <script>
+    const lista = document.getElementById('listaObjetivos');
+
+    function obtenerHoy() {
+      const hoy = new Date();
+      return hoy.toISOString().split('T')[0]; // formato YYYY-MM-DD
+    }
+
+    function cargarObjetivos() {
+      lista.innerHTML = '';
+      const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+      const hoy = obtenerHoy();
+
+      objetivos.forEach((obj, i) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.textContent = obj.ultimaFechaHecho === hoy ? 'Hecho ✅' : 'Marcar Hecho';
+        btn.disabled = obj.ultimaFechaHecho === hoy;
+
+        btn.onclick = () => {
+          const ultima = obj.ultimaFechaHecho;
+          if (ultima === hoy) return;
+
+          const ayer = new Date();
+          ayer.setDate(ayer.getDate() - 1);
+          const ayerStr = ayer.toISOString().split('T')[0];
+
+          obj.racha = (ultima === ayerStr) ? (obj.racha || 0) + 1 : 1;
+          obj.ultimaFechaHecho = hoy;
+
+          guardarObjetivos(objetivos);
+          cargarObjetivos();
+        };
+
+        const eliminarBtn = document.createElement('button');
+        eliminarBtn.textContent = 'Eliminar';
+        eliminarBtn.onclick = () => {
+          objetivos.splice(i, 1);
+          guardarObjetivos(objetivos);
+          cargarObjetivos();
+        };
+
+        li.textContent = `${obj.texto} - Racha: ${obj.racha || 0} días `;
+        li.appendChild(btn);
+        li.appendChild(eliminarBtn);
+        lista.appendChild(li);
+      });
+    }
+
+    function agregarObjetivo() {
+      const texto = document.getElementById('nuevoObjetivo').value.trim();
+      if (!texto) return;
+      const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+      objetivos.push({ texto, racha: 0, ultimaFechaHecho: '' });
+      guardarObjetivos(objetivos);
+      document.getElementById('nuevoObjetivo').value = '';
+      cargarObjetivos();
+    }
+
+    function guardarObjetivos(objetivos) {
+      localStorage.setItem('objetivosDiarios', JSON.stringify(objetivos));
+    }
+
+    window.onload = cargarObjetivos;
+  </script>
+<script>
+  // Pedir permiso al cargar la página
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+
+  // Función para comprobar si hay objetivos sin marcar
+  function revisarObjetivosNoCompletados() {
+    const hoy = new Date().toISOString().split('T')[0];
+    const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+
+    const algunoNoHecho = objetivos.some(obj => {
+      return obj.ultimoDiaMarcado !== hoy;
+    });
+
+    if (algunoNoHecho && Notification.permission === "granted") {
+      new Notification("⚠️ ¡Oye!", {
+        body: "Aún no has marcado todos tus objetivos de hoy.",
+        icon: "https://cdn-icons-png.flaticon.com/512/190/190406.png" // Icono opcional
+      });
+    }
+  }
+
+  // Programar notificación a las 22:55 cada día
+  function programarNotificacionDiaria() {
+    const ahora = new Date();
+    const proxima = new Date();
+    proxima.setHours(22, 55, 0, 0); // 22:55
+
+    if (proxima < ahora) {
+      proxima.setDate(proxima.getDate() + 1);
+    }
+
+    const msHastaNotificacion = proxima - ahora;
+
+    setTimeout(() => {
+      revisarObjetivosNoCompletados();
+      programarNotificacionDiaria(); // volver a programar para el día siguiente
+    }, msHastaNotificacion);
+  }
+
+  window.addEventListener('load', () => {
+    programarNotificacionDiaria();
+  });
+</script>
+
+</body>
+</html>
