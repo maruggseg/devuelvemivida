@@ -352,6 +352,12 @@ horasSocialesInput.addEventListener("input", () => {
   localStorage.setItem("horasSociales", horasSocialesInput.value);
   actualizarDatos();
 });
+fechaInput.addEventListener("change", () => {
+  localStorage.setItem("fechaNacimiento", fechaInput.value);
+  if (intervaloID) clearInterval(intervaloID);
+  actualizarDatos();
+  intervaloID = setInterval(actualizarDatos, 1000);
+});
 
   </script>
 <h2>🔥 Rachas de Objetivos 🔥</h2>
