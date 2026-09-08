@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --paper: #f7f5f1;
+  --ink: #14110f;
+  --ink-muted: #5b5650;
+  --rule: #d8d3ca;
+  --alert: #9c2b20;
+  --alert-bg: rgba(156, 43, 32, 0.07);
+  --max-width: 560px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 3rem 1.5rem 4rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+.sheet {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  text-align: center;
+  margin: 0 0 0.25rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--ink-muted);
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+}
+
+.rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.field .hint {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+input[type="date"],
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+}
+
+input:focus-visible {
+  outline: 2px solid var(--alert);
+  outline-offset: 2px;
+}
+
+.stat {
+  text-align: center;
+  margin: 1.75rem 0;
+}
+
+.stat .value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  display: block;
+}
+
+.stat .label {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.bar-track {
+  height: 6px;
+  background: var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0.6rem 0;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.6s ease;
+}
+
+.alert-box {
+  background: var(--alert-bg);
+  border: 1px solid var(--alert);
+  color: var(--alert);
+  border-radius: 4px;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 500;
+  margin: 1.5rem 0;
+}
+
+.frase {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  text-align: center;
+  font-size: 1.2rem;
+  margin: 2rem 0;
+  min-height: 3.2em;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: center;
+}
+
+button {
+  padding: 0.75rem 1.4rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 500;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--paper);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--ink);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+ul.goals {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+ul.goals li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+
+ul.goals li .goal-text {
+  font-weight: 500;
+}
+
+ul.goals li .streak {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+
+.empty {
+  text-align: center;
+  color: var(--ink-muted);
+  padding: 1.5rem 0;
+}
+
+@media (max-width: 420px) {
+  h1 { font-size: 1.75rem; }
+  .actions { flex-direction: column; }
+  button { width: 100%; }
+}
