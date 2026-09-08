@@ -1,119 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<link rel="icon" href="favicon.ico" type="image/x-icon" />
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
   <title>DevuélvemeMiVida</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #ffffff;
-      color: #222;
-      margin: 0;
-      padding: 2rem;
-      text-align: center;
-@media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-    padding: 0 1rem;
-  }
-}
-
-    }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-    input[type="date"], input[type="number"] {
-      padding: 0.8rem;
-      font-size: 1.2rem;
-      margin-top: 1rem;
-      border-radius: 12px;
-      border: 1.5px solid #000;
-      width: 280px;
-      outline-offset: 2px;
-      outline-color: transparent;
-      transition: outline-color 0.3s ease;
-      display: block;
-      margin: 0.5rem auto 1rem auto;
-    }
-    input[type="date"]:focus, input[type="number"]:focus {
-      outline-color: #000;
-    }
-    label {
-      font-weight: bold;
-      font-size: 1.1rem;
-      display: block;
-      margin-top: 1.5rem;
-      color: #000;
-    }
-    #tiempo, #porcentaje {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-    }
-    #horasRedesSocialesTotal {
-      margin-top: 2rem;
-      font-size: 1.5rem;
-      color: #c00; /* rojo fuerte */
-      font-weight: bold;
-    }
-    #barra {
-      width: 80%;
-      height: 25px;
-      background-color: #ddd;
-      margin: 1rem auto;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    #relleno {
-      height: 100%;
-      background-color: #000;
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-    #frase {
-      font-style: italic;
-      margin: 2rem auto;
-      font-size: 1.3rem;
-      max-width: 90%;
-    }
-    button {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-      margin: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #000;
-      color: white;
-    }
-    button:hover {
-      background-color: #333;
-    }
-  </style>
 </head>
 <body>
-  <h1>DevuélvemeMiVida</h1>
+  <main class="sheet">
+    <h1>DevuélvemeMiVida</h1>
+    <p class="subtitle">Un recordatorio honesto de cuánto tiempo llevas vivo — y en qué se te va.</p>
 
-  <p>¿Cuándo naciste?</p>
-  <input type="date" id="fechaNacimiento" />
+    <div class="field">
+      <label for="fechaNacimiento">¿Cuándo naciste?</label>
+      <input type="date" id="fechaNacimiento" />
+    </div>
 
-  <label for="horasSociales">Horas diarias que pasas en redes sociales:</label>
-  <input type="number" id="horasSociales" min="0" max="24" step="0.1" placeholder="Ej: 3.5" />
+    <div class="field">
+      <label for="horasSociales">Horas diarias que pasas en redes sociales</label>
+      <input type="number" id="horasSociales" min="0" max="24" step="0.1" placeholder="Ej: 3.5" />
+    </div>
 
-<div id="tiempo"></div>
-<div id="porcentaje"></div>
-<div id="barra"><div id="relleno"></div></div>
-<div id="horasRedesSocialesTotal"></div>
+    <div id="tiempo" class="stat" aria-live="polite"></div>
 
-  <div id="frase">La vida no se repite. ¿Qué estás haciendo con la tuya?</div>
-  <button onclick="nuevaFrase()">Otra frase</button>
-<button onclick="window.location.href='objetivos.html'">Ir a Objetivos Diarios</button>
+    <div id="porcentajeWrap" class="stat" aria-live="polite">
+      <div id="porcentaje" class="label"></div>
+      <div class="bar-track"><div id="relleno" class="bar-fill"></div></div>
+    </div>
 
+    <div id="horasRedesSocialesTotal" class="alert-box" aria-live="polite" hidden></div>
 
-  <button onclick="redirigir()">Llévame a algo útil</button>
+    <hr class="rule" />
+
+    <div id="frase" class="frase">La vida no se repite. ¿Qué estás haciendo con la tuya?</div>
+
+    <div class="actions">
+      <button onclick="nuevaFrase()">Otra frase</button>
+      <button class="secondary" onclick="window.location.href='objetivos.html'">Ir a objetivos diarios</button>
+      <button class="secondary" onclick="redirigir()">Llévame a algo útil</button>
+    </div>
+
+    <hr class="rule" />
+
+    <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">🔥 Rachas de objetivos</h2>
+    <div id="rachasObjetivos"></div>
+  </main>
 
   <script>
     const frases = [
@@ -226,36 +158,28 @@
 
     const linksUtiles = [
       "https://www.freecodecamp.org/",
-  "https://www.coursera.org/",
-  "https://www.edx.org/",
-  "https://www.khanacademy.org/",
-  "https://www.udemy.com/",
-  "https://www.duolingo.com/",
-  "https://www.codecademy.com/",
-  "https://www.memrise.com/",
-
-  // Productividad y organización
-  "https://www.notion.so/",
-  "https://trello.com/",
-  "https://todoist.com/",
-  "https://www.evernote.com/",
-  "https://calendar.google.com/",
-
-  // Salud mental y bienestar
-  "https://www.headspace.com/",
-  "https://www.calm.com/",
-  "https://www.mindful.org/",
-  "https://www.7cups.com/",
-
-  // Carrera y habilidades profesionales
-  "https://www.linkedin.com/learning/",
-  "https://www.themuse.com/",
-  "https://www.glassdoor.com/index.htm",
-
-  // Creatividad y hobbies
-  "https://www.skillshare.com/",
-  "https://www.deviantart.com/",
-  "https://www.canva.com/"
+      "https://www.coursera.org/",
+      "https://www.edx.org/",
+      "https://www.khanacademy.org/",
+      "https://www.udemy.com/",
+      "https://www.duolingo.com/",
+      "https://www.codecademy.com/",
+      "https://www.memrise.com/",
+      "https://www.notion.so/",
+      "https://trello.com/",
+      "https://todoist.com/",
+      "https://www.evernote.com/",
+      "https://calendar.google.com/",
+      "https://www.headspace.com/",
+      "https://www.calm.com/",
+      "https://www.mindful.org/",
+      "https://www.7cups.com/",
+      "https://www.linkedin.com/learning/",
+      "https://www.themuse.com/",
+      "https://www.glassdoor.com/index.htm",
+      "https://www.skillshare.com/",
+      "https://www.deviantart.com/",
+      "https://www.canva.com/"
     ];
 
     function nuevaFrase() {
@@ -265,32 +189,15 @@
 
     function redirigir() {
       const url = linksUtiles[Math.floor(Math.random() * linksUtiles.length)];
-      window.open(url, '_blank');
+      window.open(url, '_blank', 'noopener');
     }
 
-    const MILISEGUNDOS_EN_UN_SEGUNDO = 1000;
-    const MILISEGUNDOS_EN_UN_MINUTO = 60 * MILISEGUNDOS_EN_UN_SEGUNDO;
-    const MILISEGUNDOS_EN_UN_HORA = 60 * MILISEGUNDOS_EN_UN_MINUTO;
-    const MILISEGUNDOS_EN_UN_DIA = 24 * MILISEGUNDOS_EN_UN_HORA;
+    const MS_SEGUNDO = 1000;
+    const MS_MINUTO = 60 * MS_SEGUNDO;
+    const MS_HORA = 60 * MS_MINUTO;
+    const MS_DIA = 24 * MS_HORA;
     const ESPERANZA_VIDA_ANIOS = 80;
     const HORAS_EN_UN_DIA = 24;
-
-    let intervaloID;
-window.addEventListener('load', () => {
-  const fechaGuardada = localStorage.getItem('fechaNacimiento');
-  const horasGuardadas = localStorage.getItem('horasSociales');
-
-  if (fechaGuardada) {
-    fechaInput.value = fechaGuardada;
-  }
-  if (horasGuardadas) {
-    horasSocialesInput.value = horasGuardadas;
-  }
-
-  actualizarDatos();
-  intervaloID = setInterval(actualizarDatos, 1000);
-});
-
 
     const fechaInput = document.getElementById("fechaNacimiento");
     const horasSocialesInput = document.getElementById("horasSociales");
@@ -299,11 +206,13 @@ window.addEventListener('load', () => {
     const horasRedesSocialesTotalDiv = document.getElementById("horasRedesSocialesTotal");
     const rellenoBarra = document.getElementById("relleno");
 
+    let intervaloID;
+
     function actualizarDatos() {
       if (!fechaInput.value) {
         tiempoDiv.textContent = "";
         porcentajeDiv.textContent = "";
-        horasRedesSocialesTotalDiv.textContent = "";
+        horasRedesSocialesTotalDiv.hidden = true;
         rellenoBarra.style.width = "0%";
         return;
       }
@@ -312,106 +221,84 @@ window.addEventListener('load', () => {
       const ahora = new Date();
       const diffMs = ahora - nacimiento;
 
-      if(diffMs < 0) {
+      if (diffMs < 0) {
         tiempoDiv.textContent = "Selecciona una fecha válida.";
         porcentajeDiv.textContent = "";
-        horasRedesSocialesTotalDiv.textContent = "";
+        horasRedesSocialesTotalDiv.hidden = true;
         rellenoBarra.style.width = "0%";
         return;
       }
 
-      // Tiempo vivido
-      const dias = Math.floor(diffMs / MILISEGUNDOS_EN_UN_DIA);
-      const horas = Math.floor((diffMs % MILISEGUNDOS_EN_UN_DIA) / MILISEGUNDOS_EN_UN_HORA);
-      const minutos = Math.floor((diffMs % MILISEGUNDOS_EN_UN_HORA) / MILISEGUNDOS_EN_UN_MINUTO);
-      const segundos = Math.floor((diffMs % MILISEGUNDOS_EN_UN_MINUTO) / MILISEGUNDOS_EN_UN_SEGUNDO);
+      const dias = Math.floor(diffMs / MS_DIA);
+      const horas = Math.floor((diffMs % MS_DIA) / MS_HORA);
+      const minutos = Math.floor((diffMs % MS_HORA) / MS_MINUTO);
+      const segundos = Math.floor((diffMs % MS_MINUTO) / MS_SEGUNDO);
 
-      tiempoDiv.textContent =
-        `Has vivido ${dias} días, ${horas} horas, ${minutos} minutos y ${segundos} segundos.`;
+      tiempoDiv.innerHTML =
+        `<span class="value">${dias} días, ${horas}h ${minutos}m ${segundos}s</span><span class="label">llevas vivo</span>`;
 
-      // Porcentaje vida usada
       const edadAnios = diffMs / (1000 * 60 * 60 * 24 * 365.25);
       const porcentaje = Math.min((edadAnios / ESPERANZA_VIDA_ANIOS) * 100, 100);
 
       porcentajeDiv.textContent =
-        `Has usado aproximadamente el ${porcentaje.toFixed(2)}% de una vida promedio de 80 años.`;
+        `Has usado aproximadamente el ${porcentaje.toFixed(2)}% de una vida promedio de ${ESPERANZA_VIDA_ANIOS} años.`;
       rellenoBarra.style.width = porcentaje + "%";
-// Horas diarias en redes sociales y total gastado en 80 años
-let horasDiarias = parseFloat(horasSocialesInput.value);
-if (isNaN(horasDiarias) || horasDiarias < 0) horasDiarias = 0;
-if (horasDiarias > 24) horasDiarias = 24;
 
-// Total horas redes en vida completa (80 años)
-const totalHorasRedes = horasDiarias * HORAS_EN_UN_DIA * ESPERANZA_VIDA_ANIOS;
+      let horasDiarias = parseFloat(horasSocialesInput.value);
+      if (isNaN(horasDiarias) || horasDiarias < 0) horasDiarias = 0;
+      if (horasDiarias > 24) horasDiarias = 24;
 
-// Convertir horas totales a años
-// Cálculo correcto de años gastados en redes
-const totalAniosRedes = horasDiarias * ESPERANZA_VIDA_ANIOS / 24;
-
-horasRedesSocialesTotalDiv.textContent =
-  `Si mantienes ese ritmo, gastarás aproximadamente ${totalAniosRedes.toFixed(2)} años en redes sociales en toda tu vida.`;
+      if (horasDiarias > 0) {
+        const totalAniosRedes = (horasDiarias * ESPERANZA_VIDA_ANIOS) / HORAS_EN_UN_DIA;
+        horasRedesSocialesTotalDiv.hidden = false;
+        horasRedesSocialesTotalDiv.textContent =
+          `Si mantienes ese ritmo, gastarás aproximadamente ${totalAniosRedes.toFixed(2)} años en redes sociales a lo largo de tu vida.`;
+      } else {
+        horasRedesSocialesTotalDiv.hidden = true;
+      }
     }
 
-    fechaInput.addEventListener("change", () => {
+    function reiniciarIntervalo() {
       if (intervaloID) clearInterval(intervaloID);
       actualizarDatos();
       intervaloID = setInterval(actualizarDatos, 1000);
-    });
-horasSocialesInput.addEventListener("input", () => {
-  localStorage.setItem("horasSociales", horasSocialesInput.value);
-  actualizarDatos();
-});
-fechaInput.addEventListener("change", () => {
-  localStorage.setItem("fechaNacimiento", fechaInput.value);
-  if (intervaloID) clearInterval(intervaloID);
-  actualizarDatos();
-  intervaloID = setInterval(actualizarDatos, 1000);
-});
-
-  </script>
-<h2>🔥 Rachas de Objetivos 🔥</h2>
-<div id="rachasObjetivos" style="font-size: 1.3rem; margin-bottom: 2rem;"></div>
-
-<script>
-  function mostrarRachas() {
-    const rachasDiv = document.getElementById('rachasObjetivos');
-    const objetivos = JSON.parse(localStorage.getItem('objetivos')) || [];
-
-    if (objetivos.length === 0) {
-      rachasDiv.textContent = "No tienes objetivos aún.";
-      return;
     }
 
-    let texto = '';
-    objetivos.forEach(obj => {
-      texto += `🔥 ${obj.nombre}: ${obj.racha || 0} días<br>`;
+    fechaInput.addEventListener("change", () => {
+      localStorage.setItem("fechaNacimiento", fechaInput.value);
+      reiniciarIntervalo();
     });
 
-    rachasDiv.innerHTML = texto;
-  }
+    horasSocialesInput.addEventListener("input", () => {
+      localStorage.setItem("horasSociales", horasSocialesInput.value);
+      actualizarDatos();
+    });
 
-  window.addEventListener('load', () => {
-    mostrarRachas();
-  });
-</script>
-<div id="rachasObjetivos" style="margin-top:2rem; font-weight:bold;"></div>
+    function mostrarRachas() {
+      const rachasDiv = document.getElementById('rachasObjetivos');
+      const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
 
-<script>
-function mostrarRachas() {
-  const rachasDiv = document.getElementById('rachasObjetivos');
-  const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
-  if (objetivos.length === 0) {
-    rachasDiv.textContent = "No tienes objetivos aún.";
-    return;
-  }
-  let texto = '';
-  objetivos.forEach(obj => {
-    texto += ` ${obj.texto}: ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}<br>`;
-  });
-  rachasDiv.innerHTML = texto;
-}
-window.addEventListener('load', mostrarRachas);
-</script>
+      if (objetivos.length === 0) {
+        rachasDiv.innerHTML = '<p class="empty">Aún no tienes objetivos. <a href="objetivos.html">Añade uno</a>.</p>';
+        return;
+      }
 
+      rachasDiv.innerHTML = objetivos
+        .map(obj => `🔥 <strong>${obj.texto}</strong> — ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}`)
+        .join('<br>');
+    }
+
+    window.addEventListener('load', () => {
+      const fechaGuardada = localStorage.getItem('fechaNacimiento');
+      const horasGuardadas = localStorage.getItem('horasSociales');
+
+      if (fechaGuardada) fechaInput.value = fechaGuardada;
+      if (horasGuardadas) horasSocialesInput.value = horasGuardadas;
+
+      actualizarDatos();
+      intervaloID = setInterval(actualizarDatos, 1000);
+      mostrarRachas();
+    });
+  </script>
 </body>
 </html>
