@@ -272,3 +272,10 @@ function mostrarBannerRachaSiAplica(elemento) {
     elemento.hidden = true;
   }
 }
+
+// Registra el service worker para que el sitio funcione offline y sea instalable.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
