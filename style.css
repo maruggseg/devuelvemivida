@@ -415,6 +415,11 @@ ul.goals li .goal-text {
   box-shadow: none;
 }
 
+.streak-toggle.bump-streak {
+  display: inline-block;
+  animation: bump-racha 0.4s ease;
+}
+
 .empty {
   text-align: center;
   color: var(--ink-muted);
@@ -445,6 +450,106 @@ ul.goals li .goal-text {
   background: var(--accent);
   border-color: var(--accent-bright);
   box-shadow: 0 0 6px var(--accent-glow);
+}
+
+.rachas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 1.1rem;
+  margin: 1.75rem 0;
+}
+
+.racha-card {
+  text-align: center;
+  opacity: 0;
+  animation: aparecer-racha 0.5s ease forwards;
+  animation-delay: calc(var(--indice) * 0.08s);
+}
+
+@keyframes aparecer-racha {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.racha-anillo {
+  --progreso: 0%;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) var(--progreso), var(--bg-elev-2) 0deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto 0.7rem;
+  box-shadow: 0 0 18px var(--accent-glow);
+}
+
+.racha-anillo::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--bg-elev);
+}
+
+.racha-emoji {
+  position: relative;
+  z-index: 1;
+  font-size: 1.3rem;
+  line-height: 1;
+  display: inline-block;
+  animation: parpadeo-llama 1.8s ease-in-out infinite;
+}
+
+.racha-num {
+  position: relative;
+  z-index: 1;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0.15rem;
+}
+
+@keyframes parpadeo-llama {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.08) rotate(-3deg); }
+  50% { transform: scale(0.96) rotate(2deg); }
+  75% { transform: scale(1.05) rotate(-1deg); }
+}
+
+.racha-nombre {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--ink);
+  margin-bottom: 0.15rem;
+}
+
+.racha-meta {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.racha-card.bump .racha-anillo {
+  animation: bump-racha 0.4s ease;
+}
+
+@keyframes bump-racha {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.volver-manana {
+  text-align: center;
+}
+
+.volver-texto {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  max-width: 420px;
+  margin: 0 auto 1.4rem;
 }
 
 .confeti-contenedor {

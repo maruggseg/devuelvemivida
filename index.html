@@ -43,6 +43,14 @@
 
     <hr class="rule" />
 
+    <p class="eyebrow">Reflexiona</p>
+    <div id="frase" class="frase"></div>
+    <div class="actions">
+      <button onclick="nuevaFrase()">Otra frase</button>
+    </div>
+
+    <hr class="rule" />
+
     <div class="reto-hero">
       <p class="eyebrow">Tu misión de hoy</p>
       <div id="retoDia" class="reto-texto"></div>
@@ -53,21 +61,25 @@
 
     <hr class="rule" />
 
-    <div id="frase" class="frase"></div>
-
+    <p class="eyebrow">Ahora te toca a ti</p>
     <div class="actions">
-      <button onclick="nuevaFrase()">Otra frase</button>
-      <button class="secondary" onclick="window.location.href='objetivos.html'">Ir a objetivos diarios</button>
+      <button onclick="window.location.href='objetivos.html'">Marcar mis objetivos de hoy</button>
       <button class="secondary" onclick="redirigir()">Llévame a algo útil</button>
     </div>
 
     <hr class="rule" />
 
-    <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">🔥 Rachas de objetivos</h2>
-    <div id="rachasObjetivos"></div>
+    <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">🔥 Tu progreso</h2>
+    <div id="rachasObjetivos" class="rachas-grid"></div>
 
-    <div class="actions" style="margin-top: 1.5rem;">
-      <button class="secondary" onclick="window.location.href='estadisticas.html'">Ver mis estadísticas</button>
+    <hr class="rule" />
+
+    <div class="volver-manana">
+      <p class="eyebrow">Vuelve mañana</p>
+      <p class="volver-texto">Habrá una frase nueva, un reto nuevo — y tu racha esperando que no la rompas.</p>
+      <div class="actions">
+        <button class="secondary" onclick="window.location.href='estadisticas.html'">Ver mis estadísticas</button>
+      </div>
     </div>
   </main>
 
@@ -409,20 +421,7 @@
     });
 
     function mostrarRachas() {
-      const rachasDiv = document.getElementById('rachasObjetivos');
-      const objetivos = cargarObjetivos();
-
-      if (objetivos.length === 0) {
-        rachasDiv.innerHTML = '<p class="empty">Aún no tienes objetivos. <a href="objetivos.html">Añade uno</a>.</p>';
-        return;
-      }
-
-      rachasDiv.innerHTML = objetivos
-        .map(obj => {
-          const insignia = insigniaPara(obj.racha || 0);
-          return `${insignia || '🔥'} <strong>${obj.texto}</strong> — ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}`;
-        })
-        .join('<br>');
+      renderizarRachasVisuales(document.getElementById('rachasObjetivos'), cargarObjetivos());
     }
 
     window.addEventListener('load', () => {
