@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Tus estadísticas de progreso en DevuélvemeMiVida: rachas, objetivos completados y evolución semanal." />
+  <title>Estadísticas</title>
+</head>
+<body>
+  <main class="sheet">
+    <h1>Tus estadísticas</h1>
+    <p class="subtitle">El espejo de tu constancia. Esto es lo que has construido hasta hoy.</p>
+
+    <div id="statsGrid" class="stats-grid"></div>
+
+    <div id="sinDatos" class="empty" hidden>
+      Aún no tienes datos suficientes. <a href="objetivos.html">Añade y marca objetivos</a> para ver tu progreso aquí.
+    </div>
+
+    <hr class="rule" />
+
+    <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">📤 Comparte tu progreso</h2>
+    <p class="subtitle">Genera una tarjeta con tus datos para compartirla donde quieras.</p>
+
+    <div class="actions">
+      <button onclick="generarTarjeta()">Generar tarjeta</button>
+    </div>
+
+    <div id="tarjetaWrap" class="tarjeta-wrap" hidden>
+      <canvas id="tarjetaCanvas" width="1080" height="1350"></canvas>
+      <div class="actions" style="margin-top: 1rem;">
+        <a id="descargarTarjeta" class="secondary" download="devuelvememivida.png">Descargar imagen</a>
+      </div>
+    </div>
+
+    <hr class="rule" />
+
+    <div class="actions">
+      <button class="secondary" onclick="window.location.href='objetivos.html'">Ir a objetivos</button>
+      <button class="secondary" onclick="window.location.href='index.html'">Volver a inicio</button>
+    </div>
+  </main>
+
+  <script src="objetivos.js"></script>
+  <script>
+    const ESPERANZA_VIDA_ANIOS = 80;
+
+    function datosVida() {
+      const fecha = localStorage.getItem('fechaNacimiento');
+      if (!fecha) return null;
+      const nacimiento = new Date(fecha);
+      const diffMs = new Date() - nacimiento;
+      if (diffMs < 0) return null;
+      const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const porcentaje = Math.min((diffMs / (1000 * 60 * 60 * 24 * 365.25) / ESPERANZA_VIDA_ANIOS) * 100, 100);
+      return { dias, porcentaje };
+    }
+
+    function tarjetaStat(emoji, valor, etiqueta) {
+      const div = document.createElement('div');
+      div.className = 'stat-card';
+      div.innerHTML = `<div class="stat-card-emoji">${emoji}</div><div class="stat-card-valor">${valor}</div><div class="stat-card-etiqueta">${etiqueta}</div>`;
+      return div;
+    }
+
+    function pintarEstadisticas() {
+      const stats = calcularEstadisticasGlobales();
+      const grid = document.getElementById('statsGrid');
+      const vida = datosVida();
+
+      grid.innerHTML = '';
+
+      if (stats.totalObjetivos === 0 && !vida) {
+        document.getElementById('sinDatos').hidden = false;
+        return;
+      }
+
+      if (vida) {
+        grid.appendChild(tarjetaStat('⏳', vida.dias.toLocaleString('es-ES'), 'días llevas vivo/a'));
+        grid.appendChild(tarjetaStat('📊', vida.porcentaje.toFixed(2) + '%', `de una vida de ${ESPERANZA_VIDA_ANIOS} años`));
+      }
+
+      grid.appendChild(tarjetaStat('🏆', stats.mejorRachaGlobal, 'racha más larga (días)'));
+      grid.appendChild(tarjetaStat('✅', stats.totalCompletados, 'objetivos cumplidos en total'));
+      grid.appendChild(tarjetaStat('🎯', stats.totalObjetivos, 'objetivos activos'));
+      grid.appendChild(tarjetaStat('📅', stats.completadosHoy + '/' + stats.totalObjetivos, 'cumplidos hoy'));
+
+      const diferencia = stats.hechosEstaSemana - stats.hechosSemanaAnterior;
+      const flecha = diferencia > 0 ? '📈' : diferencia < 0 ? '📉' : '➡️';
+      grid.appendChild(tarjetaStat(flecha, `${stats.hechosEstaSemana} vs ${stats.hechosSemanaAnterior}`, 'esta semana vs. la anterior'));
+    }
+
+    function envolverTexto(ctx, texto, x, y, anchoMax, alturaLinea) {
+      const palabras = texto.split(' ');
+      let linea = '';
+      let lineas = 0;
+      palabras.forEach((palabra, i) => {
+        const pruebaLinea = linea + palabra + ' ';
+        if (ctx.measureText(pruebaLinea).width > anchoMax && i > 0) {
+          ctx.fillText(linea, x, y + lineas * alturaLinea);
+          linea = palabra + ' ';
+          lineas++;
+        } else {
+          linea = pruebaLinea;
+        }
+      });
+      ctx.fillText(linea, x, y + lineas * alturaLinea);
+    }
+
+    function generarTarjeta() {
+      const stats = calcularEstadisticasGlobales();
+      const vida = datosVida();
+      const canvas = document.getElementById('tarjetaCanvas');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.fillStyle = '#f7f5f1';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = '#14110f';
+      ctx.textAlign = 'center';
+
+      ctx.font = 'italic 44px Georgia, serif';
+      ctx.fillText('DevuélvemeMiVida', w / 2, 130);
+
+      ctx.strokeStyle = '#d8d3ca';
+      ctx.beginPath();
+      ctx.moveTo(120, 180);
+      ctx.lineTo(w - 120, 180);
+      ctx.stroke();
+
+      let y = 320;
+
+      if (vida) {
+        ctx.font = 'bold 120px Georgia, serif';
+        ctx.fillText(vida.dias.toLocaleString('es-ES'), w / 2, y);
+        ctx.font = '32px sans-serif';
+        ctx.fillStyle = '#5b5650';
+        ctx.fillText('días llevas vivo/a', w / 2, y + 55);
+        y += 200;
+      }
+
+      ctx.fillStyle = '#9c2b20';
+      ctx.font = 'bold 90px Georgia, serif';
+      ctx.fillText(stats.mejorRachaGlobal, w / 2, y);
+      ctx.font = '30px sans-serif';
+      ctx.fillStyle = '#5b5650';
+      ctx.fillText('días de racha máxima', w / 2, y + 50);
+      y += 150;
+
+      ctx.fillStyle = '#14110f';
+      ctx.font = 'bold 60px Georgia, serif';
+      ctx.fillText(stats.totalCompletados, w / 2, y);
+      ctx.font = '30px sans-serif';
+      ctx.fillStyle = '#5b5650';
+      ctx.fillText('objetivos cumplidos en total', w / 2, y + 45);
+      y += 160;
+
+      ctx.strokeStyle = '#d8d3ca';
+      ctx.beginPath();
+      ctx.moveTo(120, y);
+      ctx.lineTo(w - 120, y);
+      ctx.stroke();
+      y += 90;
+
+      ctx.fillStyle = '#14110f';
+      ctx.font = 'italic 34px Georgia, serif';
+      ctx.textAlign = 'center';
+      envolverTexto(ctx, 'La vida no se repite. ¿Qué estás haciendo con la tuya?', w / 2 - 380, y, 760, 46);
+
+      document.getElementById('tarjetaWrap').hidden = false;
+
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const enlace = document.getElementById('descargarTarjeta');
+        enlace.href = url;
+      });
+
+      document.getElementById('tarjetaWrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    window.addEventListener('load', pintarEstadisticas);
+  </script>
+</body>
+</html>

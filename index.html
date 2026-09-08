@@ -32,9 +32,11 @@
 
     <div id="horasRedesSocialesTotal" class="alert-box" aria-live="polite" hidden></div>
 
+    <div id="bannerRachaInicio" class="alert-box" aria-live="polite" hidden></div>
+
     <hr class="rule" />
 
-    <div id="frase" class="frase">La vida no se repite. ¿Qué estás haciendo con la tuya?</div>
+    <div id="frase" class="frase"></div>
 
     <div class="actions">
       <button onclick="nuevaFrase()">Otra frase</button>
@@ -44,10 +46,20 @@
 
     <hr class="rule" />
 
+    <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">🎯 Reto de hoy</h2>
+    <div id="retoDia" class="frase"></div>
+
+    <hr class="rule" />
+
     <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">🔥 Rachas de objetivos</h2>
     <div id="rachasObjetivos"></div>
+
+    <div class="actions" style="margin-top: 1.5rem;">
+      <button class="secondary" onclick="window.location.href='estadisticas.html'">Ver mis estadísticas</button>
+    </div>
   </main>
 
+  <script src="objetivos.js"></script>
   <script>
     const frases = [
       "Haz que cada segundo cuente.",
@@ -183,9 +195,50 @@
       "https://www.canva.com/"
     ];
 
+    const retos = [
+      "Deja el móvil fuera de la habitación esta noche.",
+      "Camina 15 minutos sin auriculares ni pantalla.",
+      "Escribe 3 cosas por las que estás agradecido/a hoy.",
+      "Bebe un vaso de agua nada más despertar.",
+      "Haz 20 flexiones (o las que puedas) ahora mismo.",
+      "Llama a alguien a quien quieres, no le escribas.",
+      "Pasa 1 hora sin redes sociales.",
+      "Ordena un rincón de tu casa que evitas mirar.",
+      "Lee 10 páginas de un libro.",
+      "Duerme 30 minutos antes que ayer.",
+      "Anota tu objetivo número uno de esta semana.",
+      "Desayuna sin mirar el móvil.",
+      "Haz una lista de 3 tareas y termínalas antes de las 20:00.",
+      "Estírate 5 minutos al levantarte.",
+      "Dile a alguien algo que admiras de él o ella.",
+      "Sal a que te dé el sol 10 minutos.",
+      "Elimina una app que te hace perder el tiempo, aunque sea por hoy.",
+      "Medita o respira profundo durante 5 minutos.",
+      "Escribe cómo te gustaría que fuera tu día ideal dentro de 1 año.",
+      "Haz algo creativo 15 minutos: dibuja, escribe, toca música.",
+      "Revisa tus gastos de esta semana.",
+      "Prepara la ropa o las tareas de mañana esta noche.",
+      "Da las gracias a alguien que no esperaba oírlo.",
+      "Aprende una palabra nueva en otro idioma.",
+      "Apaga las notificaciones del móvil por 3 horas.",
+      "Haz la cama nada más levantarte.",
+      "Escribe un mensaje a alguien con quien perdiste el contacto.",
+      "Revisa tus metas del mes: ¿vas en la dirección correcta?",
+      "Sal a caminar o hacer ejercicio aunque no tengas ganas.",
+      "Reflexiona: ¿qué harías hoy si supieras que te queda 1 año de vida?"
+    ];
+
     function nuevaFrase() {
       const frase = frases[Math.floor(Math.random() * frases.length)];
       document.getElementById("frase").textContent = frase;
+    }
+
+    function pintarFraseDelDia() {
+      document.getElementById("frase").textContent = frases[semillaDelDia() % frases.length];
+    }
+
+    function pintarRetoDelDia() {
+      document.getElementById("retoDia").textContent = retos[semillaDelDia(17) % retos.length];
     }
 
     function redirigir() {
@@ -277,7 +330,7 @@
 
     function mostrarRachas() {
       const rachasDiv = document.getElementById('rachasObjetivos');
-      const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+      const objetivos = cargarObjetivos();
 
       if (objetivos.length === 0) {
         rachasDiv.innerHTML = '<p class="empty">Aún no tienes objetivos. <a href="objetivos.html">Añade uno</a>.</p>';
@@ -285,7 +338,10 @@
       }
 
       rachasDiv.innerHTML = objetivos
-        .map(obj => `🔥 <strong>${obj.texto}</strong> — ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}`)
+        .map(obj => {
+          const insignia = insigniaPara(obj.racha || 0);
+          return `${insignia || '🔥'} <strong>${obj.texto}</strong> — ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}`;
+        })
         .join('<br>');
     }
 
@@ -298,7 +354,10 @@
 
       actualizarDatos();
       intervaloID = setInterval(actualizarDatos, 1000);
+      pintarFraseDelDia();
+      pintarRetoDelDia();
       mostrarRachas();
+      mostrarBannerRachaSiAplica(document.getElementById('bannerRachaInicio'));
     });
   </script>
 </body>

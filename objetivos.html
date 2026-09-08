@@ -13,12 +13,14 @@
     <h1>Objetivos diarios</h1>
     <p class="subtitle">Constancia, no perfección. Márcalos cada día para mantener la racha.</p>
 
+    <div id="bannerRacha" class="alert-box" aria-live="polite" hidden></div>
+
     <div class="field">
       <label for="nuevoObjetivo">Nuevo objetivo</label>
       <input type="text" id="nuevoObjetivo" placeholder="Ej: Ir al gym" />
     </div>
     <div class="actions" style="margin-bottom: 2rem;">
-      <button onclick="agregarObjetivo()">Agregar objetivo</button>
+      <button onclick="alAgregarObjetivo()">Agregar objetivo</button>
       <button id="btnNotificar" class="secondary" onclick="activarRecordatorio()">Activar recordatorio 22:55</button>
     </div>
 
@@ -27,36 +29,23 @@
     <hr class="rule" />
 
     <div class="actions">
+      <button class="secondary" onclick="window.location.href='estadisticas.html'">Ver mis estadísticas</button>
       <button class="secondary" onclick="window.location.href='index.html'">Volver a inicio</button>
     </div>
   </main>
 
+  <script src="objetivos.js"></script>
   <script>
     const lista = document.getElementById('listaObjetivos');
     const btnNotificar = document.getElementById('btnNotificar');
+    const bannerRacha = document.getElementById('bannerRacha');
 
-    function obtenerHoy() {
-      return new Date().toISOString().split('T')[0];
-    }
-
-    function obtenerAyer() {
-      const ayer = new Date();
-      ayer.setDate(ayer.getDate() - 1);
-      return ayer.toISOString().split('T')[0];
-    }
-
-    function cargarObjetivosGuardados() {
-      return JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
-    }
-
-    function guardarObjetivos(objetivos) {
-      localStorage.setItem('objetivosDiarios', JSON.stringify(objetivos));
-    }
-
-    function cargarObjetivos() {
+    function pintarObjetivos() {
       lista.innerHTML = '';
-      const objetivos = cargarObjetivosGuardados();
+      const objetivos = cargarObjetivos();
       const hoy = obtenerHoy();
+
+      mostrarBannerRachaSiAplica(bannerRacha);
 
       if (objetivos.length === 0) {
         lista.innerHTML = '<p class="empty">No tienes objetivos aún. Añade el primero arriba.</p>';
@@ -66,60 +55,74 @@
       objetivos.forEach((obj, i) => {
         const li = document.createElement('li');
 
+        const fila = document.createElement('div');
+        fila.className = 'goal-row';
+
         const info = document.createElement('span');
         info.className = 'goal-text';
         info.textContent = obj.texto;
 
-        const streak = document.createElement('span');
-        streak.className = 'streak';
-        streak.textContent = `Racha: ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}`;
+        const streak = document.createElement('button');
+        streak.type = 'button';
+        streak.className = 'streak streak-toggle';
+        const insignia = insigniaPara(obj.racha || 0);
+        streak.textContent = `${insignia ? insignia + ' ' : ''}Racha: ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''} (mejor: ${obj.mejorRacha || 0}) 📅`;
+        streak.title = 'Ver calendario';
 
         const btn = document.createElement('button');
         btn.textContent = obj.ultimaFechaHecho === hoy ? 'Hecho ✅' : 'Marcar hecho';
         btn.disabled = obj.ultimaFechaHecho === hoy;
         btn.onclick = () => {
-          if (obj.ultimaFechaHecho === hoy) return;
-          obj.racha = (obj.ultimaFechaHecho === obtenerAyer()) ? (obj.racha || 0) + 1 : 1;
-          obj.ultimaFechaHecho = hoy;
-          guardarObjetivos(objetivos);
-          cargarObjetivos();
+          const hito = marcarHecho(objetivos, i);
+          lanzarConfeti();
+          if (hito) {
+            setTimeout(() => alert(`🎉 ¡Racha de ${hito} días en "${obj.texto}"! Sigue así.`), 150);
+          }
+          pintarObjetivos();
         };
 
         const eliminarBtn = document.createElement('button');
         eliminarBtn.className = 'secondary';
         eliminarBtn.textContent = 'Eliminar';
         eliminarBtn.onclick = () => {
-          objetivos.splice(i, 1);
-          guardarObjetivos(objetivos);
-          cargarObjetivos();
+          eliminarObjetivo(objetivos, i);
+          pintarObjetivos();
         };
 
-        li.appendChild(info);
-        li.appendChild(streak);
-        li.appendChild(btn);
-        li.appendChild(eliminarBtn);
+        fila.appendChild(info);
+        fila.appendChild(streak);
+        fila.appendChild(btn);
+        fila.appendChild(eliminarBtn);
+        li.appendChild(fila);
+
+        const calendario = document.createElement('div');
+        calendario.hidden = true;
+        streak.onclick = () => {
+          calendario.hidden = !calendario.hidden;
+          if (!calendario.hidden) renderizarCalendario(calendario, obj.historial);
+        };
+        li.appendChild(calendario);
+
         lista.appendChild(li);
       });
     }
 
-    function agregarObjetivo() {
+    function alAgregarObjetivo() {
       const input = document.getElementById('nuevoObjetivo');
       const texto = input.value.trim();
       if (!texto) return;
-      const objetivos = cargarObjetivosGuardados();
-      objetivos.push({ texto, racha: 0, ultimaFechaHecho: '' });
-      guardarObjetivos(objetivos);
+      agregarObjetivo(texto);
       input.value = '';
-      cargarObjetivos();
+      pintarObjetivos();
     }
 
     document.getElementById('nuevoObjetivo').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') agregarObjetivo();
+      if (e.key === 'Enter') alAgregarObjetivo();
     });
 
     function revisarObjetivosNoCompletados() {
       const hoy = obtenerHoy();
-      const objetivos = cargarObjetivosGuardados();
+      const objetivos = cargarObjetivos();
       const algunoNoHecho = objetivos.some(obj => obj.ultimaFechaHecho !== hoy);
 
       if (algunoNoHecho && Notification.permission === 'granted') {
@@ -161,7 +164,7 @@
     }
 
     window.addEventListener('load', () => {
-      cargarObjetivos();
+      pintarObjetivos();
       actualizarBotonNotificacion();
       if ('Notification' in window && Notification.permission === 'granted') {
         programarNotificacionDiaria();
