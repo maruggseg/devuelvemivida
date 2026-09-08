@@ -20,6 +20,14 @@
     <h1>DevuélvemeMiVida</h1>
     <p class="subtitle">Un recordatorio honesto de cuánto tiempo llevas vivo — y en qué se te va.</p>
 
+    <div id="instalarBanner" class="instalar-banner" hidden>
+      <span id="instalarTexto"></span>
+      <div class="actions">
+        <button id="btnInstalar" class="secondary">Instalar app</button>
+        <button id="btnCerrarInstalar" class="secondary">Ahora no</button>
+      </div>
+    </div>
+
     <div class="field">
       <label for="fechaNacimiento">¿Cuándo naciste?</label>
       <input type="date" id="fechaNacimiento" />
@@ -430,6 +438,54 @@
       renderizarRachasVisuales(document.getElementById('rachasObjetivos'), cargarObjetivos());
     }
 
+    // --- Instalar como app (PWA) ---
+    let promptDiferido = null;
+    const instalarBanner = document.getElementById('instalarBanner');
+    const instalarTexto = document.getElementById('instalarTexto');
+    const btnInstalar = document.getElementById('btnInstalar');
+    const btnCerrarInstalar = document.getElementById('btnCerrarInstalar');
+
+    function appYaInstalada() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function esIOS() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent);
+    }
+
+    function mostrarBannerInstalar() {
+      if (appYaInstalada() || localStorage.getItem('instalarBannerCerrado') === 'true') return;
+
+      if (esIOS()) {
+        instalarTexto.textContent = '📲 Instala esta web como app: toca Compartir y luego "Añadir a pantalla de inicio".';
+        btnInstalar.hidden = true;
+        instalarBanner.hidden = false;
+      } else if (promptDiferido) {
+        instalarTexto.textContent = '📲 Instala DevuélvemeMiVida como app para tenerla siempre a mano.';
+        btnInstalar.hidden = false;
+        instalarBanner.hidden = false;
+      }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      promptDiferido = e;
+      mostrarBannerInstalar();
+    });
+
+    btnInstalar.addEventListener('click', async () => {
+      if (!promptDiferido) return;
+      promptDiferido.prompt();
+      await promptDiferido.userChoice;
+      promptDiferido = null;
+      instalarBanner.hidden = true;
+    });
+
+    btnCerrarInstalar.addEventListener('click', () => {
+      instalarBanner.hidden = true;
+      localStorage.setItem('instalarBannerCerrado', 'true');
+    });
+
     window.addEventListener('load', () => {
       const fechaGuardada = localStorage.getItem('fechaNacimiento');
       const horasGuardadas = localStorage.getItem('horasSociales');
@@ -443,6 +499,7 @@
       pintarRetoDelDia();
       mostrarRachas();
       mostrarBannerRachaSiAplica(document.getElementById('bannerRachaInicio'));
+      mostrarBannerInstalar();
     });
   </script>
 </body>
