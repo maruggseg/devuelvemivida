@@ -24,7 +24,13 @@
       <input type="number" id="horasSociales" min="0" max="24" step="0.1" placeholder="Ej: 3.5" />
     </div>
 
-    <div id="tiempo" class="stat" aria-live="polite"></div>
+    <div id="tiempo" class="stat hero" aria-live="polite"></div>
+    <div id="restante" class="stat hero" aria-live="polite"></div>
+
+    <div id="gridVidaWrap">
+      <div id="gridVida" class="grid-vida" aria-hidden="true"></div>
+      <p class="grid-caption">Cada punto es una semana de tu vida.<span class="dot-leyenda vivida"></span>vividas<span class="dot-leyenda actual"></span>ahora<span class="dot-leyenda futura"></span>por vivir</p>
+    </div>
 
     <div id="porcentajeWrap" class="stat" aria-live="polite">
       <div id="porcentaje" class="label"></div>
@@ -37,6 +43,16 @@
 
     <hr class="rule" />
 
+    <div class="reto-hero">
+      <p class="eyebrow">Tu misión de hoy</p>
+      <div id="retoDia" class="reto-texto"></div>
+      <div class="actions">
+        <button id="btnRetoObjetivo" onclick="convertirRetoEnObjetivo()"></button>
+      </div>
+    </div>
+
+    <hr class="rule" />
+
     <div id="frase" class="frase"></div>
 
     <div class="actions">
@@ -44,11 +60,6 @@
       <button class="secondary" onclick="window.location.href='objetivos.html'">Ir a objetivos diarios</button>
       <button class="secondary" onclick="redirigir()">Llévame a algo útil</button>
     </div>
-
-    <hr class="rule" />
-
-    <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">🎯 Reto de hoy</h2>
-    <div id="retoDia" class="frase"></div>
 
     <hr class="rule" />
 
@@ -167,7 +178,12 @@
       "No vivas distraído. Vive despierto.",
       "Sé radical con tu tiempo.",
       "Deja de soñar y empieza a construir.",
-      "La vida comienza cuando dejas de escapar de ella."
+      "La vida comienza cuando dejas de escapar de ella.",
+      "No tienes tiempo ilimitado.",
+      "Algún día será tu último día sin que lo sepas.",
+      "Lo que haces hoy se convierte en tu vida.",
+      "No estás perdiendo horas. Estás perdiendo días.",
+      "Tu futuro está hecho de tus días de hoy."
     ];
 
     const linksUtiles = [
@@ -229,9 +245,18 @@
       "Reflexiona: ¿qué harías hoy si supieras que te queda 1 año de vida?"
     ];
 
+    function cambiarFrase(texto) {
+      const el = document.getElementById("frase");
+      el.style.opacity = 0;
+      setTimeout(() => {
+        el.textContent = texto;
+        el.style.opacity = 1;
+      }, 180);
+    }
+
     function nuevaFrase() {
       const frase = frases[Math.floor(Math.random() * frases.length)];
-      document.getElementById("frase").textContent = frase;
+      cambiarFrase(frase);
     }
 
     function pintarFraseDelDia() {
@@ -240,6 +265,23 @@
 
     function pintarRetoDelDia() {
       document.getElementById("retoDia").textContent = retos[semillaDelDia(17) % retos.length];
+      actualizarEstadoBotonReto();
+    }
+
+    function actualizarEstadoBotonReto() {
+      const texto = document.getElementById('retoDia').textContent;
+      const btn = document.getElementById('btnRetoObjetivo');
+      const yaExiste = cargarObjetivos().some(o => o.texto === texto);
+      btn.textContent = yaExiste ? 'Añadido a tus objetivos ✅' : 'Hacerlo mi objetivo de hoy';
+      btn.disabled = yaExiste;
+    }
+
+    function convertirRetoEnObjetivo() {
+      const texto = document.getElementById('retoDia').textContent;
+      const yaExiste = cargarObjetivos().some(o => o.texto === texto);
+      if (!yaExiste) agregarObjetivo(texto);
+      actualizarEstadoBotonReto();
+      mostrarRachas();
     }
 
     function redirigir() {
@@ -257,18 +299,43 @@
     const fechaInput = document.getElementById("fechaNacimiento");
     const horasSocialesInput = document.getElementById("horasSociales");
     const tiempoDiv = document.getElementById("tiempo");
+    const restanteDiv = document.getElementById("restante");
     const porcentajeDiv = document.getElementById("porcentaje");
     const horasRedesSocialesTotalDiv = document.getElementById("horasRedesSocialesTotal");
     const rellenoBarra = document.getElementById("relleno");
+    const gridVidaDiv = document.getElementById("gridVida");
+
+    const DIAS_TOTALES_VIDA = Math.round(ESPERANZA_VIDA_ANIOS * 365.25);
 
     let intervaloID;
+    let ultimosDiasVividosRenderizados = null;
+
+    // Cuadrícula "vida en semanas": un punto por semana vivida/futura.
+    function dibujarGridVida(diasVividos) {
+      const semanasVividas = Math.floor(diasVividos / 7);
+      const semanasTotales = Math.ceil(DIAS_TOTALES_VIDA / 7);
+      const frag = document.createDocumentFragment();
+
+      for (let i = 0; i < semanasTotales; i++) {
+        const punto = document.createElement('span');
+        if (i < semanasVividas) punto.className = 'vivida';
+        else if (i === semanasVividas) punto.className = 'actual';
+        frag.appendChild(punto);
+      }
+
+      gridVidaDiv.innerHTML = '';
+      gridVidaDiv.appendChild(frag);
+    }
 
     function actualizarDatos() {
       if (!fechaInput.value) {
         tiempoDiv.textContent = "";
+        restanteDiv.textContent = "";
         porcentajeDiv.textContent = "";
         horasRedesSocialesTotalDiv.hidden = true;
         rellenoBarra.style.width = "0%";
+        gridVidaDiv.innerHTML = "";
+        ultimosDiasVividosRenderizados = null;
         return;
       }
 
@@ -278,9 +345,12 @@
 
       if (diffMs < 0) {
         tiempoDiv.textContent = "Selecciona una fecha válida.";
+        restanteDiv.textContent = "";
         porcentajeDiv.textContent = "";
         horasRedesSocialesTotalDiv.hidden = true;
         rellenoBarra.style.width = "0%";
+        gridVidaDiv.innerHTML = "";
+        ultimosDiasVividosRenderizados = null;
         return;
       }
 
@@ -290,7 +360,16 @@
       const segundos = Math.floor((diffMs % MS_MINUTO) / MS_SEGUNDO);
 
       tiempoDiv.innerHTML =
-        `<span class="value">${dias} días, ${horas}h ${minutos}m ${segundos}s</span><span class="label">llevas vivo</span>`;
+        `<span class="value">${dias.toLocaleString('es-ES')}</span><span class="label">días has vivido — ahora mismo suman ${horas}h ${minutos}m ${segundos}s más</span>`;
+
+      const diasRestantes = Math.max(DIAS_TOTALES_VIDA - dias, 0);
+      restanteDiv.innerHTML =
+        `<span class="value accent">${diasRestantes.toLocaleString('es-ES')}</span><span class="label">días te quedan, si llegas a los ${ESPERANZA_VIDA_ANIOS}</span>`;
+
+      if (dias !== ultimosDiasVividosRenderizados) {
+        dibujarGridVida(dias);
+        ultimosDiasVividosRenderizados = dias;
+      }
 
       const edadAnios = diffMs / (1000 * 60 * 60 * 24 * 365.25);
       const porcentaje = Math.min((edadAnios / ESPERANZA_VIDA_ANIOS) * 100, 100);

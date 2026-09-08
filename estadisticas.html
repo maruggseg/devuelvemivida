@@ -19,6 +19,12 @@
       Aún no tienes datos suficientes. <a href="objetivos.html">Añade y marca objetivos</a> para ver tu progreso aquí.
     </div>
 
+    <div id="graficaSeccion" hidden>
+      <hr class="rule" />
+      <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">📈 Evolución (últimos 14 días)</h2>
+      <canvas id="graficaEvolucion" class="grafica" width="700" height="220"></canvas>
+    </div>
+
     <hr class="rule" />
 
     <h2 style="font-family:'Fraunces',serif; font-weight:600; text-align:center; font-size:1.3rem;">📤 Comparte tu progreso</h2>
@@ -67,8 +73,10 @@
 
     function pintarEstadisticas() {
       const stats = calcularEstadisticasGlobales();
+      const objetivos = cargarObjetivos();
       const grid = document.getElementById('statsGrid');
       const vida = datosVida();
+      const horasSociales = parseFloat(localStorage.getItem('horasSociales'));
 
       grid.innerHTML = '';
 
@@ -79,17 +87,70 @@
 
       if (vida) {
         grid.appendChild(tarjetaStat('⏳', vida.dias.toLocaleString('es-ES'), 'días llevas vivo/a'));
+        grid.appendChild(tarjetaStat('🕐', Math.round(vida.dias * 24).toLocaleString('es-ES'), 'horas llevas vivo/a'));
         grid.appendChild(tarjetaStat('📊', vida.porcentaje.toFixed(2) + '%', `de una vida de ${ESPERANZA_VIDA_ANIOS} años`));
       }
 
-      grid.appendChild(tarjetaStat('🏆', stats.mejorRachaGlobal, 'racha más larga (días)'));
+      if (vida && !isNaN(horasSociales) && horasSociales > 0) {
+        const diasEnRedesYaGastados = (horasSociales * vida.dias) / 24;
+        const aniosProyectados = (horasSociales * ESPERANZA_VIDA_ANIOS) / 24;
+        grid.appendChild(tarjetaStat('📱', diasEnRedesYaGastados.toFixed(1), 'días ya gastados en redes (estimado)'));
+        grid.appendChild(tarjetaStat('⚠️', aniosProyectados.toFixed(1), 'años que gastarás en redes si sigues así'));
+      }
+
+      grid.appendChild(tarjetaStat('🏆', stats.mejorRachaGlobal, 'racha récord (días)'));
+      grid.appendChild(tarjetaStat('🔥', rachaActualMaxima(objetivos), 'racha activa más alta'));
       grid.appendChild(tarjetaStat('✅', stats.totalCompletados, 'objetivos cumplidos en total'));
       grid.appendChild(tarjetaStat('🎯', stats.totalObjetivos, 'objetivos activos'));
       grid.appendChild(tarjetaStat('📅', stats.completadosHoy + '/' + stats.totalObjetivos, 'cumplidos hoy'));
+      grid.appendChild(tarjetaStat('📈', tasaCumplimiento(objetivos, 30).toFixed(0) + '%', 'cumplimiento (últimos 30 días)'));
 
       const diferencia = stats.hechosEstaSemana - stats.hechosSemanaAnterior;
       const flecha = diferencia > 0 ? '📈' : diferencia < 0 ? '📉' : '➡️';
       grid.appendChild(tarjetaStat(flecha, `${stats.hechosEstaSemana} vs ${stats.hechosSemanaAnterior}`, 'esta semana vs. la anterior'));
+
+      dibujarGraficaEvolucion(objetivos);
+    }
+
+    function dibujarGraficaEvolucion(objetivos) {
+      const seccion = document.getElementById('graficaSeccion');
+      if (objetivos.length === 0) {
+        seccion.hidden = true;
+        return;
+      }
+      seccion.hidden = false;
+
+      const datos = historialPorDia(objetivos, 14);
+      const canvas = document.getElementById('graficaEvolucion');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const padding = 30;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const max = Math.max(1, ...datos.map(d => d.cantidad));
+      const anchoBarra = (w - padding * 2) / datos.length;
+
+      datos.forEach((d, i) => {
+        const alturaBarra = (d.cantidad / max) * (h - padding * 2);
+        const x = padding + i * anchoBarra;
+        const y = h - padding - alturaBarra;
+
+        ctx.fillStyle = d.cantidad > 0 ? '#ff4433' : '#211c17';
+        ctx.fillRect(x + anchoBarra * 0.15, y, anchoBarra * 0.7, Math.max(alturaBarra, 2));
+
+        ctx.fillStyle = '#6f6559';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(new Date(d.fecha + 'T00:00:00').getDate()), x + anchoBarra / 2, h - padding + 16);
+      });
+
+      ctx.strokeStyle = '#2b2620';
+      ctx.beginPath();
+      ctx.moveTo(padding, h - padding);
+      ctx.lineTo(w - padding, h - padding);
+      ctx.stroke();
     }
 
     function envolverTexto(ctx, texto, x, y, anchoMax, alturaLinea) {
