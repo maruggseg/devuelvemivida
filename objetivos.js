@@ -128,6 +128,46 @@ function calcularEstadisticasGlobales() {
   };
 }
 
+function rachaActualMaxima(objetivos) {
+  return objetivos.reduce((max, o) => Math.max(max, o.racha || 0), 0);
+}
+
+// % de marcas hechas frente a las posibles (objetivos × días) en la ventana dada.
+function tasaCumplimiento(objetivos, dias = 30) {
+  if (objetivos.length === 0) return 0;
+  const desde = new Date();
+  desde.setDate(desde.getDate() - dias);
+
+  let marcas = 0;
+  objetivos.forEach(obj => {
+    obj.historial.forEach(fechaStr => {
+      if (new Date(fechaStr) >= desde) marcas++;
+    });
+  });
+
+  const posibles = objetivos.length * dias;
+  return posibles > 0 ? Math.min((marcas / posibles) * 100, 100) : 0;
+}
+
+// Nº de objetivos completados por día en los últimos `dias` días, para graficar la evolución.
+function historialPorDia(objetivos, dias = 14) {
+  const hoy = new Date();
+  const cuentas = {};
+  for (let i = dias - 1; i >= 0; i--) {
+    const d = new Date(hoy);
+    d.setDate(d.getDate() - i);
+    cuentas[d.toISOString().split('T')[0]] = 0;
+  }
+
+  objetivos.forEach(obj => {
+    obj.historial.forEach(fechaStr => {
+      if (fechaStr in cuentas) cuentas[fechaStr]++;
+    });
+  });
+
+  return Object.entries(cuentas).map(([fecha, cantidad]) => ({ fecha, cantidad }));
+}
+
 // Pequeña explosión de confeti con divs, sin dependencias externas.
 function lanzarConfeti() {
   const colores = ['#ff4433', '#ff6a52', '#d9a544', '#f4ede1'];
