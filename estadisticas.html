@@ -117,16 +117,19 @@
       const w = canvas.width;
       const h = canvas.height;
 
-      ctx.fillStyle = '#f7f5f1';
+      const bg = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, h);
+      bg.addColorStop(0, '#241a15');
+      bg.addColorStop(1, '#0b0a09');
+      ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      ctx.fillStyle = '#14110f';
+      ctx.fillStyle = '#ff6a52';
       ctx.textAlign = 'center';
 
       ctx.font = 'italic 44px Georgia, serif';
       ctx.fillText('DevuélvemeMiVida', w / 2, 130);
 
-      ctx.strokeStyle = '#d8d3ca';
+      ctx.strokeStyle = '#2b2620';
       ctx.beginPath();
       ctx.moveTo(120, 180);
       ctx.lineTo(w - 120, 180);
@@ -135,40 +138,41 @@
       let y = 320;
 
       if (vida) {
+        ctx.fillStyle = '#f4ede1';
         ctx.font = 'bold 120px Georgia, serif';
         ctx.fillText(vida.dias.toLocaleString('es-ES'), w / 2, y);
         ctx.font = '32px sans-serif';
-        ctx.fillStyle = '#5b5650';
+        ctx.fillStyle = '#a89c8c';
         ctx.fillText('días llevas vivo/a', w / 2, y + 55);
         y += 200;
       }
 
-      ctx.fillStyle = '#9c2b20';
+      ctx.fillStyle = '#ff4433';
       ctx.font = 'bold 90px Georgia, serif';
       ctx.fillText(stats.mejorRachaGlobal, w / 2, y);
       ctx.font = '30px sans-serif';
-      ctx.fillStyle = '#5b5650';
+      ctx.fillStyle = '#a89c8c';
       ctx.fillText('días de racha máxima', w / 2, y + 50);
       y += 150;
 
-      ctx.fillStyle = '#14110f';
+      ctx.fillStyle = '#f4ede1';
       ctx.font = 'bold 60px Georgia, serif';
       ctx.fillText(stats.totalCompletados, w / 2, y);
       ctx.font = '30px sans-serif';
-      ctx.fillStyle = '#5b5650';
+      ctx.fillStyle = '#a89c8c';
       ctx.fillText('objetivos cumplidos en total', w / 2, y + 45);
       y += 160;
 
-      ctx.strokeStyle = '#d8d3ca';
+      ctx.strokeStyle = '#2b2620';
       ctx.beginPath();
       ctx.moveTo(120, y);
       ctx.lineTo(w - 120, y);
       ctx.stroke();
       y += 90;
 
-      ctx.fillStyle = '#14110f';
+      ctx.fillStyle = '#f4ede1';
       ctx.font = 'italic 34px Georgia, serif';
-      ctx.textAlign = 'center';
+      ctx.textAlign = 'left';
       envolverTexto(ctx, 'La vida no se repite. ¿Qué estás haciendo con la tuya?', w / 2 - 380, y, 760, 46);
 
       document.getElementById('tarjetaWrap').hidden = false;
