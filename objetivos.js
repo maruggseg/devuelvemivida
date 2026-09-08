@@ -128,6 +128,52 @@ function calcularEstadisticasGlobales() {
   };
 }
 
+function proximoHito(racha) {
+  return HITOS_RACHA.find(h => h > racha) || HITOS_RACHA[HITOS_RACHA.length - 1];
+}
+
+// Pinta las rachas como tarjetas con un anillo de progreso hacia el próximo hito.
+function renderizarRachasVisuales(contenedor, objetivos) {
+  contenedor.innerHTML = '';
+
+  if (objetivos.length === 0) {
+    contenedor.innerHTML = '<p class="empty">Aún no tienes objetivos. <a href="objetivos.html">Añade uno</a>.</p>';
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+
+  objetivos.forEach((obj, i) => {
+    const racha = obj.racha || 0;
+    const hito = proximoHito(racha);
+    const progreso = Math.min((racha / hito) * 100, 100);
+
+    const card = document.createElement('div');
+    card.className = 'racha-card';
+    card.style.setProperty('--indice', i);
+
+    const anillo = document.createElement('div');
+    anillo.className = 'racha-anillo';
+    anillo.style.setProperty('--progreso', progreso + '%');
+    anillo.innerHTML = `<span class="racha-emoji">${insigniaPara(racha) || '🔥'}</span><span class="racha-num">${racha}</span>`;
+
+    const nombre = document.createElement('div');
+    nombre.className = 'racha-nombre';
+    nombre.textContent = obj.texto;
+
+    const meta = document.createElement('div');
+    meta.className = 'racha-meta';
+    meta.textContent = racha === 0 ? 'Empieza hoy' : `${racha} día${racha !== 1 ? 's' : ''} · próximo hito: ${hito}`;
+
+    card.appendChild(anillo);
+    card.appendChild(nombre);
+    card.appendChild(meta);
+    frag.appendChild(card);
+  });
+
+  contenedor.appendChild(frag);
+}
+
 function rachaActualMaxima(objetivos) {
   return objetivos.reduce((max, o) => Math.max(max, o.racha || 0), 0);
 }

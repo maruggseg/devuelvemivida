@@ -39,6 +39,7 @@
     const lista = document.getElementById('listaObjetivos');
     const btnNotificar = document.getElementById('btnNotificar');
     const bannerRacha = document.getElementById('bannerRacha');
+    let indiceRecienMarcado = null;
 
     function pintarObjetivos() {
       lista.innerHTML = '';
@@ -65,6 +66,7 @@
         const streak = document.createElement('button');
         streak.type = 'button';
         streak.className = 'streak streak-toggle';
+        if (i === indiceRecienMarcado) streak.classList.add('bump-streak');
         const insignia = insigniaPara(obj.racha || 0);
         streak.textContent = `${insignia ? insignia + ' ' : ''}Racha: ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''} (mejor: ${obj.mejorRacha || 0}) 📅`;
         streak.title = 'Ver calendario';
@@ -78,7 +80,9 @@
           if (hito) {
             setTimeout(() => alert(`🎉 ¡Racha de ${hito} días en "${obj.texto}"! Sigue así.`), 150);
           }
+          indiceRecienMarcado = i;
           pintarObjetivos();
+          indiceRecienMarcado = null;
         };
 
         const eliminarBtn = document.createElement('button');
