@@ -78,7 +78,7 @@
     <p class="eyebrow">Ahora te toca a ti</p>
     <div class="actions">
       <button onclick="window.location.href='objetivos.html'">Marcar mis objetivos de hoy</button>
-      <button class="secondary" onclick="redirigir()">Llévame a algo útil</button>
+      <button class="secondary" onclick="abrirTragaperras()">Llévame a algo útil</button>
     </div>
 
     <hr class="rule" />
@@ -96,6 +96,19 @@
       </div>
     </div>
   </main>
+
+  <div id="tragaperrasOverlay" class="tragaperras-overlay" hidden onclick="if (event.target === this) cerrarTragaperras()">
+    <div class="tragaperras-caja">
+      <p class="eyebrow">Algo útil para ahora mismo</p>
+      <div class="tragaperras-ventana">
+        <div id="tragaperrasCarrete" class="tragaperras-carrete"></div>
+      </div>
+      <div class="actions" style="margin-top: 1.5rem;">
+        <button onclick="tirarTragaperras()">Otra acción</button>
+        <button class="secondary" onclick="cerrarTragaperras()">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="objetivos.js"></script>
   <script>
@@ -212,30 +225,63 @@
       "Tu futuro está hecho de tus días de hoy."
     ];
 
-    const linksUtiles = [
-      "https://www.freecodecamp.org/",
-      "https://www.coursera.org/",
-      "https://www.edx.org/",
-      "https://www.khanacademy.org/",
-      "https://www.udemy.com/",
-      "https://www.duolingo.com/",
-      "https://www.codecademy.com/",
-      "https://www.memrise.com/",
-      "https://www.notion.so/",
-      "https://trello.com/",
-      "https://todoist.com/",
-      "https://www.evernote.com/",
-      "https://calendar.google.com/",
-      "https://www.headspace.com/",
-      "https://www.calm.com/",
-      "https://www.mindful.org/",
-      "https://www.7cups.com/",
-      "https://www.linkedin.com/learning/",
-      "https://www.themuse.com/",
-      "https://www.glassdoor.com/index.htm",
-      "https://www.skillshare.com/",
-      "https://www.deviantart.com/",
-      "https://www.canva.com/"
+    const accionesUtiles = [
+      // 💰 Dinero
+      "💰 Revisa tus gastos de esta semana.",
+      "💰 Ahorra hoy una cantidad, aunque sean 2 €.",
+      "💰 Busca una cosa que puedas vender y no uses.",
+      "💰 Aprende una forma nueva de ganar dinero.",
+      "💰 Dedica 20 minutos a buscar una oportunidad de trabajo.",
+      "💰 Aprende una habilidad que pueda darte dinero.",
+      "💰 Haz una lista de tus objetivos económicos.",
+      "💰 Mira en qué gastaste dinero ayer.",
+      "💰 Compara el precio de algo antes de comprarlo.",
+      "💰 Aprende algo básico sobre inversión.",
+      // 🧠 Aprendizaje
+      "🧠 Lee 10 páginas de un libro.",
+      "🧠 Aprende 10 palabras de un idioma.",
+      "🧠 Aprende algo que siempre hayas querido saber.",
+      "🧠 Mira una clase de 20 minutos.",
+      "🧠 Investiga un tema que te interese.",
+      "🧠 Aprende una habilidad nueva.",
+      "🧠 Escribe lo que has aprendido hoy.",
+      "🧠 Intenta explicar algo que sabes sin mirar apuntes.",
+      "🧠 Haz 10 minutos de matemáticas.",
+      "🧠 Aprende algo nuevo sobre tecnología.",
+      // 💪 Cuerpo
+      "💪 Haz 20 flexiones.",
+      "💪 Sal a caminar durante 30 minutos.",
+      "💪 Haz 10 minutos de estiramientos.",
+      "💪 Entrena durante 30 minutos.",
+      "💪 Bebe agua y deja las bebidas azucaradas por hoy.",
+      "💪 Prepárate una comida saludable.",
+      "💪 Sal al exterior durante 20 minutos.",
+      "💪 Haz 50 sentadillas.",
+      "💪 Camina mientras escuchas un podcast.",
+      "💪 Acuéstate 30 minutos antes esta noche.",
+      // 🎯 Productividad
+      "🎯 Ordena tu habitación durante 10 minutos.",
+      "🎯 Termina una tarea que llevas posponiendo.",
+      "🎯 Haz primero la tarea que menos te apetece.",
+      "🎯 Organiza mañana antes de irte a dormir.",
+      "🎯 Limpia tu escritorio.",
+      "🎯 Elimina 20 archivos que no necesites.",
+      "🎯 Organiza tus fotos del móvil.",
+      "🎯 Haz una lista de las cosas que tienes pendientes.",
+      "🎯 Dedica 25 minutos a una tarea sin mirar el móvil.",
+      "🎯 Empieza ese proyecto que llevas semanas pensando.",
+      // 📱 Menos pantalla
+      "📱 Deja el móvil durante 30 minutos.",
+      "📱 Pasa una hora sin redes sociales.",
+      "📱 Borra una aplicación que te hace perder tiempo.",
+      "📱 Desactiva las notificaciones innecesarias.",
+      "📱 Durante la próxima hora, usa el móvil solo para algo útil.",
+      // ❤️ Vida
+      "❤️ Llama a alguien con quien hace tiempo que no hablas.",
+      "❤️ Pasa tiempo con tu familia sin mirar el móvil.",
+      "❤️ Haz algo que llevas meses posponiendo.",
+      "❤️ Sal de casa y descubre un sitio nuevo.",
+      "❤️ Haz durante 30 minutos algo que realmente te guste."
     ];
 
     const retos = [
@@ -310,10 +356,75 @@
       mostrarRachas();
     }
 
-    function redirigir() {
-      const url = linksUtiles[Math.floor(Math.random() * linksUtiles.length)];
-      window.open(url, '_blank', 'noopener');
+    // --- Tragaperras de acciones útiles ---
+    const ALTURA_FILA_TRAGAPERRAS = 64;
+    const RELLENO_ANTES_TRAGAPERRAS = 22;
+    const RELLENO_DESPUES_TRAGAPERRAS = 2;
+    let tragaperrasAnimando = false;
+
+    function elegirAccionUtil() {
+      return accionesUtiles[Math.floor(Math.random() * accionesUtiles.length)];
     }
+
+    function construirCarreteTragaperras(destino) {
+      const carrete = document.getElementById('tragaperrasCarrete');
+      carrete.innerHTML = '';
+      carrete.style.transition = 'none';
+      carrete.style.transform = 'translateY(0)';
+
+      const filas = [];
+      for (let i = 0; i < RELLENO_ANTES_TRAGAPERRAS; i++) filas.push(elegirAccionUtil());
+      const indiceDestino = filas.length;
+      filas.push(destino);
+      for (let i = 0; i < RELLENO_DESPUES_TRAGAPERRAS; i++) filas.push(elegirAccionUtil());
+
+      filas.forEach(texto => {
+        const fila = document.createElement('div');
+        fila.className = 'tragaperras-fila';
+        fila.textContent = texto;
+        carrete.appendChild(fila);
+      });
+
+      return indiceDestino;
+    }
+
+    function tirarTragaperras() {
+      if (tragaperrasAnimando) return;
+      tragaperrasAnimando = true;
+
+      const destino = elegirAccionUtil();
+      const carrete = document.getElementById('tragaperrasCarrete');
+      const indiceDestino = construirCarreteTragaperras(destino);
+
+      void carrete.offsetHeight; // fuerza el reflow para que el reset no se fusione con la animación
+
+      const desplazamiento = (indiceDestino - 1) * ALTURA_FILA_TRAGAPERRAS;
+      carrete.style.transition = 'transform 2.2s cubic-bezier(0.15, 0.85, 0.25, 1)';
+      carrete.style.transform = `translateY(-${desplazamiento}px)`;
+
+      setTimeout(() => {
+        tragaperrasAnimando = false;
+        const filaGanadora = carrete.children[indiceDestino];
+        if (filaGanadora) filaGanadora.classList.add('tragaperras-fila-ganadora');
+      }, 2250);
+    }
+
+    function abrirTragaperras() {
+      document.getElementById('tragaperrasOverlay').hidden = false;
+      document.body.style.overflow = 'hidden';
+      tirarTragaperras();
+    }
+
+    function cerrarTragaperras() {
+      document.getElementById('tragaperrasOverlay').hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('tragaperrasOverlay').hidden) {
+        cerrarTragaperras();
+      }
+    });
 
     const MS_SEGUNDO = 1000;
     const MS_MINUTO = 60 * MS_SEGUNDO;

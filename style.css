@@ -594,6 +594,79 @@ ul.goals li .goal-text {
   100% { transform: scale(1); }
 }
 
+.tragaperras-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 50;
+  animation: aparecer 0.2s ease both;
+}
+
+.tragaperras-overlay[hidden] {
+  display: none;
+}
+
+.tragaperras-caja {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.tragaperras-ventana {
+  height: 192px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--bg-elev-2);
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+.tragaperras-ventana::before,
+.tragaperras-ventana::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--rule);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.tragaperras-ventana::before { top: 64px; }
+.tragaperras-ventana::after { top: 128px; }
+
+.tragaperras-fila {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.25rem;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.tragaperras-fila.tragaperras-fila-ganadora {
+  color: var(--ink);
+  text-shadow: 0 0 24px var(--accent-glow);
+  animation: bump-racha 0.4s ease;
+}
+
 .volver-manana {
   text-align: center;
 }
