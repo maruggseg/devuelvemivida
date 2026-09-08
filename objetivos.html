@@ -1,87 +1,91 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
   <title>Objetivos Diarios</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fff;
-      color: #222;
-      text-align: center;
-      padding: 2rem;
-    }
-    input {
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #000;
-      width: 250px;
-    }
-    button {
-      padding: 0.6rem 1.2rem;
-      margin: 0.5rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #000;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover:not(:disabled) {
-      background-color: #333;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 1rem 0;
-    }
-  </style>
 </head>
 <body>
-  <h1>Objetivos Diarios</h1>
-  <input type="text" id="nuevoObjetivo" placeholder="Ej: Ir al gym">
-  <button onclick="agregarObjetivo()">Agregar objetivo</button>
-  <ul id="listaObjetivos"></ul>
-  <button onclick="window.location.href='index.html'">Volver a Inicio</button>
+  <main class="sheet">
+    <h1>Objetivos diarios</h1>
+    <p class="subtitle">Constancia, no perfección. Márcalos cada día para mantener la racha.</p>
+
+    <div class="field">
+      <label for="nuevoObjetivo">Nuevo objetivo</label>
+      <input type="text" id="nuevoObjetivo" placeholder="Ej: Ir al gym" />
+    </div>
+    <div class="actions" style="margin-bottom: 2rem;">
+      <button onclick="agregarObjetivo()">Agregar objetivo</button>
+      <button id="btnNotificar" class="secondary" onclick="activarRecordatorio()">Activar recordatorio 22:55</button>
+    </div>
+
+    <ul id="listaObjetivos" class="goals"></ul>
+
+    <hr class="rule" />
+
+    <div class="actions">
+      <button class="secondary" onclick="window.location.href='index.html'">Volver a inicio</button>
+    </div>
+  </main>
 
   <script>
     const lista = document.getElementById('listaObjetivos');
+    const btnNotificar = document.getElementById('btnNotificar');
 
     function obtenerHoy() {
-      const hoy = new Date();
-      return hoy.toISOString().split('T')[0]; // formato YYYY-MM-DD
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function obtenerAyer() {
+      const ayer = new Date();
+      ayer.setDate(ayer.getDate() - 1);
+      return ayer.toISOString().split('T')[0];
+    }
+
+    function cargarObjetivosGuardados() {
+      return JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+    }
+
+    function guardarObjetivos(objetivos) {
+      localStorage.setItem('objetivosDiarios', JSON.stringify(objetivos));
     }
 
     function cargarObjetivos() {
       lista.innerHTML = '';
-      const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+      const objetivos = cargarObjetivosGuardados();
       const hoy = obtenerHoy();
+
+      if (objetivos.length === 0) {
+        lista.innerHTML = '<p class="empty">No tienes objetivos aún. Añade el primero arriba.</p>';
+        return;
+      }
 
       objetivos.forEach((obj, i) => {
         const li = document.createElement('li');
+
+        const info = document.createElement('span');
+        info.className = 'goal-text';
+        info.textContent = obj.texto;
+
+        const streak = document.createElement('span');
+        streak.className = 'streak';
+        streak.textContent = `Racha: ${obj.racha || 0} día${obj.racha !== 1 ? 's' : ''}`;
+
         const btn = document.createElement('button');
-        btn.textContent = obj.ultimaFechaHecho === hoy ? 'Hecho ✅' : 'Marcar Hecho';
+        btn.textContent = obj.ultimaFechaHecho === hoy ? 'Hecho ✅' : 'Marcar hecho';
         btn.disabled = obj.ultimaFechaHecho === hoy;
-
         btn.onclick = () => {
-          const ultima = obj.ultimaFechaHecho;
-          if (ultima === hoy) return;
-
-          const ayer = new Date();
-          ayer.setDate(ayer.getDate() - 1);
-          const ayerStr = ayer.toISOString().split('T')[0];
-
-          obj.racha = (ultima === ayerStr) ? (obj.racha || 0) + 1 : 1;
+          if (obj.ultimaFechaHecho === hoy) return;
+          obj.racha = (obj.ultimaFechaHecho === obtenerAyer()) ? (obj.racha || 0) + 1 : 1;
           obj.ultimaFechaHecho = hoy;
-
           guardarObjetivos(objetivos);
           cargarObjetivos();
         };
 
         const eliminarBtn = document.createElement('button');
+        eliminarBtn.className = 'secondary';
         eliminarBtn.textContent = 'Eliminar';
         eliminarBtn.onclick = () => {
           objetivos.splice(i, 1);
@@ -89,7 +93,8 @@
           cargarObjetivos();
         };
 
-        li.textContent = `${obj.texto} - Racha: ${obj.racha || 0} días `;
+        li.appendChild(info);
+        li.appendChild(streak);
         li.appendChild(btn);
         li.appendChild(eliminarBtn);
         lista.appendChild(li);
@@ -97,66 +102,71 @@
     }
 
     function agregarObjetivo() {
-      const texto = document.getElementById('nuevoObjetivo').value.trim();
+      const input = document.getElementById('nuevoObjetivo');
+      const texto = input.value.trim();
       if (!texto) return;
-      const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
+      const objetivos = cargarObjetivosGuardados();
       objetivos.push({ texto, racha: 0, ultimaFechaHecho: '' });
       guardarObjetivos(objetivos);
-      document.getElementById('nuevoObjetivo').value = '';
+      input.value = '';
       cargarObjetivos();
     }
 
-    function guardarObjetivos(objetivos) {
-      localStorage.setItem('objetivosDiarios', JSON.stringify(objetivos));
-    }
-
-    window.onload = cargarObjetivos;
-  </script>
-<script>
-  // Pedir permiso al cargar la página
-  if (Notification.permission !== "granted") {
-    Notification.requestPermission();
-  }
-
-  // Función para comprobar si hay objetivos sin marcar
-  function revisarObjetivosNoCompletados() {
-    const hoy = new Date().toISOString().split('T')[0];
-    const objetivos = JSON.parse(localStorage.getItem('objetivosDiarios')) || [];
-
-    const algunoNoHecho = objetivos.some(obj => {
-      return obj.ultimoDiaMarcado !== hoy;
+    document.getElementById('nuevoObjetivo').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') agregarObjetivo();
     });
 
-    if (algunoNoHecho && Notification.permission === "granted") {
-      new Notification("⚠️ ¡Oye!", {
-        body: "Aún no has marcado todos tus objetivos de hoy.",
-        icon: "https://cdn-icons-png.flaticon.com/512/190/190406.png" // Icono opcional
+    function revisarObjetivosNoCompletados() {
+      const hoy = obtenerHoy();
+      const objetivos = cargarObjetivosGuardados();
+      const algunoNoHecho = objetivos.some(obj => obj.ultimaFechaHecho !== hoy);
+
+      if (algunoNoHecho && Notification.permission === 'granted') {
+        new Notification('⚠️ ¡Oye!', {
+          body: 'Aún no has marcado todos tus objetivos de hoy.'
+        });
+      }
+    }
+
+    function programarNotificacionDiaria() {
+      const ahora = new Date();
+      const proxima = new Date();
+      proxima.setHours(22, 55, 0, 0);
+      if (proxima < ahora) proxima.setDate(proxima.getDate() + 1);
+
+      setTimeout(() => {
+        revisarObjetivosNoCompletados();
+        programarNotificacionDiaria();
+      }, proxima - ahora);
+    }
+
+    function actualizarBotonNotificacion() {
+      if (!('Notification' in window)) {
+        btnNotificar.hidden = true;
+        return;
+      }
+      if (Notification.permission === 'granted') {
+        btnNotificar.textContent = 'Recordatorio activado ✅';
+        btnNotificar.disabled = true;
+      }
+    }
+
+    function activarRecordatorio() {
+      if (!('Notification' in window)) return;
+      Notification.requestPermission().then(() => {
+        actualizarBotonNotificacion();
+        programarNotificacionDiaria();
       });
     }
-  }
 
-  // Programar notificación a las 22:55 cada día
-  function programarNotificacionDiaria() {
-    const ahora = new Date();
-    const proxima = new Date();
-    proxima.setHours(22, 55, 0, 0); // 22:55
-
-    if (proxima < ahora) {
-      proxima.setDate(proxima.getDate() + 1);
-    }
-
-    const msHastaNotificacion = proxima - ahora;
-
-    setTimeout(() => {
-      revisarObjetivosNoCompletados();
-      programarNotificacionDiaria(); // volver a programar para el día siguiente
-    }, msHastaNotificacion);
-  }
-
-  window.addEventListener('load', () => {
-    programarNotificacionDiaria();
-  });
-</script>
-
+    window.addEventListener('load', () => {
+      cargarObjetivos();
+      actualizarBotonNotificacion();
+      if ('Notification' in window && Notification.permission === 'granted') {
+        programarNotificacionDiaria();
+      }
+    });
+  </script>
 </body>
 </html>
+ç
