@@ -130,7 +130,7 @@ function calcularEstadisticasGlobales() {
 
 // Pequeña explosión de confeti con divs, sin dependencias externas.
 function lanzarConfeti() {
-  const colores = ['#9c2b20', '#14110f', '#c9a24b', '#5b5650'];
+  const colores = ['#ff4433', '#ff6a52', '#d9a544', '#f4ede1'];
   const contenedor = document.createElement('div');
   contenedor.className = 'confeti-contenedor';
   document.body.appendChild(contenedor);
