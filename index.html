@@ -446,22 +446,74 @@
 
     let intervaloID;
     let ultimosDiasVividosRenderizados = null;
+    let animarProximoRenderGrid = false;
+    let cancelarRellenoGridVida = null;
 
     // Cuadrícula "vida en semanas": un punto por semana vivida/futura.
-    function dibujarGridVida(diasVividos) {
-      const semanasVividas = Math.floor(diasVividos / 7);
-      const semanasTotales = Math.ceil(DIAS_TOTALES_VIDA / 7);
+    function construirGridVidaVacia(semanasTotales) {
       const frag = document.createDocumentFragment();
-
       for (let i = 0; i < semanasTotales; i++) {
-        const punto = document.createElement('span');
-        if (i < semanasVividas) punto.className = 'vivida';
-        else if (i === semanasVividas) punto.className = 'actual';
-        frag.appendChild(punto);
+        frag.appendChild(document.createElement('span'));
       }
-
       gridVidaDiv.innerHTML = '';
       gridVidaDiv.appendChild(frag);
+    }
+
+    function aplicarEstadoGridVidaInstantaneo(semanasVividas) {
+      const celdas = gridVidaDiv.children;
+      for (let i = 0; i < celdas.length; i++) {
+        celdas[i].className = i < semanasVividas ? 'vivida' : (i === semanasVividas ? 'actual' : '');
+      }
+    }
+
+    // Rellena la cuadrícula por lotes (vía requestAnimationFrame) para que el
+    // usuario vea cómo van "subiendo" las semanas vividas en vez de aparecer de golpe.
+    function animarRellenoGridVida(semanasVividas) {
+      const celdas = gridVidaDiv.children;
+      for (let i = 0; i < celdas.length; i++) celdas[i].className = '';
+
+      if (semanasVividas <= 0) {
+        if (celdas[0]) celdas[0].className = 'actual';
+        return;
+      }
+
+      const DURACION_OBJETIVO_FRAMES = 90;
+      const lote = Math.max(1, Math.ceil(semanasVividas / DURACION_OBJETIVO_FRAMES));
+      let indice = 0;
+      let cancelado = false;
+      cancelarRellenoGridVida = () => { cancelado = true; };
+
+      function siguienteLote() {
+        if (cancelado) return;
+        const limite = Math.min(indice + lote, semanasVividas);
+        for (; indice < limite; indice++) {
+          celdas[indice].className = 'vivida';
+        }
+        if (indice < semanasVividas) {
+          requestAnimationFrame(siguienteLote);
+        } else if (celdas[indice]) {
+          celdas[indice].className = 'actual';
+        }
+      }
+
+      requestAnimationFrame(siguienteLote);
+    }
+
+    function dibujarGridVida(diasVividos, animar) {
+      if (cancelarRellenoGridVida) { cancelarRellenoGridVida(); cancelarRellenoGridVida = null; }
+
+      const semanasVividas = Math.floor(diasVividos / 7);
+      const semanasTotales = Math.ceil(DIAS_TOTALES_VIDA / 7);
+
+      if (gridVidaDiv.children.length !== semanasTotales) {
+        construirGridVidaVacia(semanasTotales);
+      }
+
+      if (animar) {
+        animarRellenoGridVida(semanasVividas);
+      } else {
+        aplicarEstadoGridVidaInstantaneo(semanasVividas);
+      }
     }
 
     function actualizarDatos() {
@@ -504,7 +556,8 @@
         `<span class="value accent">${diasRestantes.toLocaleString('es-ES')}</span><span class="label">días te quedan, si llegas a los ${ESPERANZA_VIDA_ANIOS}</span>`;
 
       if (dias !== ultimosDiasVividosRenderizados) {
-        dibujarGridVida(dias);
+        dibujarGridVida(dias, animarProximoRenderGrid);
+        animarProximoRenderGrid = false;
         ultimosDiasVividosRenderizados = dias;
       }
 
@@ -537,6 +590,7 @@
 
     fechaInput.addEventListener("change", () => {
       localStorage.setItem("fechaNacimiento", fechaInput.value);
+      animarProximoRenderGrid = true;
       reiniciarIntervalo();
     });
 
