@@ -477,19 +477,23 @@
         return;
       }
 
-      const DURACION_OBJETIVO_FRAMES = 90;
-      const lote = Math.max(1, Math.ceil(semanasVividas / DURACION_OBJETIVO_FRAMES));
+      const DURACION_MS = 4000;
+      const inicio = performance.now();
       let indice = 0;
       let cancelado = false;
       cancelarRellenoGridVida = () => { cancelado = true; };
 
-      function siguienteLote() {
+      function siguienteLote(ahora) {
         if (cancelado) return;
-        const limite = Math.min(indice + lote, semanasVividas);
+        const t = Math.min((ahora - inicio) / DURACION_MS, 1);
+        const progreso = 1 - Math.pow(1 - t, 2); // ease-out: empieza rápido, frena al final
+        const limite = Math.min(Math.floor(progreso * semanasVividas), semanasVividas);
+
         for (; indice < limite; indice++) {
           celdas[indice].className = 'vivida';
         }
-        if (indice < semanasVividas) {
+
+        if (t < 1) {
           requestAnimationFrame(siguienteLote);
         } else if (celdas[indice]) {
           celdas[indice].className = 'actual';
